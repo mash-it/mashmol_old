@@ -2,6 +2,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <cmath> // pow, sqrt
+#include <vector>
+#include <map>
 #include <string>
 using namespace std;
 
@@ -57,8 +59,7 @@ class Atom
 	Vector3D r;
 
 public:
-	Atom(string line): r(0,0,0)
-	{
+	Atom(string line): r(0,0,0) {
 		serial = stoi(line.substr(6,5));
 		name = line.substr(12,4);
 		altLoc = line.substr(16,1);
@@ -75,12 +76,26 @@ public:
 		float y = stof(line.substr(38,8));
 		float z = stof(line.substr(46,8));
 		r.setCoord(x,y,z);
-	};
+	}
 	float distance(Atom target) {
 		return (r - target.r).norm();
 	}
+	int getResSeq() {
+		return resSeq;
+	}
 	void show() {
-		cout << r << " " << r.norm() << endl;
+		cout << serial << " " << resSeq << " " << r << " " << r.norm() << endl;
+	}
+};
+
+class Residue
+{
+public:
+	vector<Atom*> atoms;
+	Residue() {
+	}
+	void add(Atom* p) {
+		atoms.push_back(p);
 	}
 };
 
@@ -107,12 +122,27 @@ int main(int argc, char *argv[]) {
 
 	// read pdb file
 	string line;
+
+	vector<Atom> atoms;
+	Residue residue;
+
 	while ( getline(fin, line) ) {
 		if (line.substr(0,4).compare("ATOM") == 0) {
-			Atom atom = Atom(line);
-			atom.show();
+			atoms.push_back(Atom(line));
 		}
 	}
+
+	for (int i=0; i < atoms.size(); i++) {
+		Atom* p = &atoms.at(i);
+		if (p->getResSeq() == 1) {
+			residue.add(p);
+		}
+	}
+
+	for (int i=0; i<residue.atoms.size(); i++) {
+		residue.atoms.at(i)->show();
+	}
+
 	return 0;
 }
 
