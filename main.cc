@@ -1,10 +1,10 @@
 #include <iostream>
-#include <fstream>
+#include <iomanip> // setw, setprecision
+#include <fstream> // ifstream
 #include <unistd.h>
 #include <cmath> // pow, sqrt
-#include <algorithm> // remove_if
+#include <algorithm> // remove
 #include <vector>
-#include <string>
 using namespace std;
 
 namespace util {
@@ -16,8 +16,8 @@ namespace util {
 
 class Vector3D
 {
-	float x, y, z;
 public:
+	float x, y, z;
 	void setCoord(float argx, float argy, float argz) {
  		x = argx;
 		y = argy;
@@ -43,10 +43,6 @@ public:
 
 	float norm() {
 		return sqrt(pow(x,2) + pow(y,2) + pow(z,2));
-	}
-
-	void show() {
-		cout << "(" << x << ", " << y << ", " << z << ")" << endl;
 	}
 };
 
@@ -94,7 +90,12 @@ public:
 		return name;
 	}
 	void show() {
-		cout << serial << " " << resSeq << " '" << name << "' "<< r << " " << r.norm() << endl;
+		cout << setw(8) << resSeq;
+		cout << setw(8) << r.x ;
+		cout << setw(8) << r.y ;
+		cout << setw(8) << r.z ;
+		cout << "  # " << setw(4) << rsSeq << " " << resName;
+		cout << '\n';
 	}
 }; // Atom
 
@@ -137,7 +138,7 @@ public:
 		return at(0);
 		//throw "No CA Atom in this residue"; // No CA ATOM in this residue
 	}
-};
+}; // Residue
 
 class NativeContact {
 	Residue res1, res2;	
@@ -148,7 +149,7 @@ public:
 		res2 = residue2;
 		natdist = distance;
 	}
-};
+}; // NativeContact
 
 class Molecule: public vector<Residue> {
 	vector<NativeContact> natconts;
@@ -179,7 +180,7 @@ public:
 			}
 		}}
 	}
-};
+}; // Molecule
 
 int main(int argc, char *argv[]) {
 	string inpfile = "input.pdb";
