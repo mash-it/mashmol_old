@@ -90,8 +90,19 @@ public:
 
 class Residue: public vector<Atom> {
 public:
-	void add(Atom a) {
-		this->push_back(a);
+	int seq;
+	Residue() {
+		seq = -1; // this means no atoms in the residue
+	}
+	void add(Atom atom) {
+		push_back(atom);
+		if (seq == -1) {
+			seq = atom.getResSeq();
+			return;
+		} 
+		if (seq != atom.getResSeq()) {
+			throw; // invalid sequence of residue
+		}
 	}
 	float distance(Residue other) {
 		if ((this->size() == 0) || (other.size() == 0)) {
@@ -105,6 +116,35 @@ public:
 			}
 		}
 		return d;
+	}
+};
+
+class Molecule: public vector<Residue> {
+public:
+	void add(Residue res) {
+		push_back(res);
+	}
+	void add(Atom atom) {
+		for(int i=0; i<size(); i++) {
+			if (at(i).seq == atom.getResSeq()) {
+				at(i).add(atom);
+				return;
+			}
+		}
+		// if no residue for this atom
+		add(Residue());
+		back().add(atom);
+	}
+	void getNatCont(float dfcontact) {
+		for(int i=0; i<size(); i++) {
+			for(int j=0; j<size(); j++) {
+				if(at(i).seq >= at(j).seq-3) continue;
+				float dist = at(i).distance(at(j));
+				if (dist < dfcontact) {
+					cout << i << " " << j << " " << dist << '\n';
+				}
+			}
+		}
 	}
 };
 
@@ -129,22 +169,21 @@ int main(int argc, char *argv[]) {
 
 	// read pdb file
 	string line;
-	map<int, Residue> residues;
 
+	Molecule mol;
 	while ( getline(fin, line) ) {
 		if (line.substr(0,4).compare("ATOM") == 0) {
 			Atom atom(line);
-			residues[atom.getResSeq()].add(atom);
+			mol.add(atom);
 		}
 	}
 
-	for (map<int, Residue>::iterator i=residues.begin(); i!=residues.end(); ++i) {
-		for (map<int, Residue>::iterator j=residues.begin(); j!=residues.end(); ++j) {
-			if (i->first >= j->first - 3) continue;
-			float d = i->second.distance(j->second);
-			if (d < 6.5) cout << i->first << " " << j->first << " " << d << endl;
-		}
+	for (int i=0; i<mol.size(); i++) {
+		mol.at(i).at(0).show();
 	}
+
+	mol.getNatCont(6.5);
+
 	return 0;
 }
 
