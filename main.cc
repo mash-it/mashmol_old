@@ -7,6 +7,8 @@
 #include <vector>
 using namespace std;
 
+const float pi = 3.14159265;
+
 namespace util {
 	string removeSpaces(string s) {
 		s.erase(remove(s.begin(), s.end(), ' '),s.end());
@@ -35,15 +37,23 @@ public:
 	Vector3D operator - (Vector3D other) {
 		return Vector3D(x - other.x, y - other.y, z - other.z);
 	}
+	float operator * (Vector3D other) {
+		return this->x * other.x + this->y * other.y + this->z * other.z;
+	}
+	float norm() {
+		return sqrt(pow(x,2) + pow(y,2) + pow(z,2));
+	}
+	float angle(Vector3D left, Vector3D right) {
+		Vector3D a = left  - *this;
+		Vector3D b = right - *this;
+		return acos((a*b) / (a.norm()*b.norm())) * (180/pi);
+	}
 
 	friend ostream& operator << (ostream& os, const Vector3D& v) {
 		os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 		return os;
 	}
 
-	float norm() {
-		return sqrt(pow(x,2) + pow(y,2) + pow(z,2));
-	}
 };
 
 class Atom
@@ -83,6 +93,9 @@ public:
 	float distance(Atom target) {
 		return (r - target.r).norm();
 	}
+	float angle(Atom left, Atom right) {
+		return r.angle(left.r, right.r);
+	}
 	int getResSeq() {
 		return resSeq;
 	}
@@ -91,10 +104,10 @@ public:
 	}
 	void show() {
 		cout << setw(8) << resSeq;
-		cout << setw(8) << r.x ;
-		cout << setw(8) << r.y ;
-		cout << setw(8) << r.z ;
-		cout << "  # " << setw(4) << rsSeq << " " << resName;
+		cout << setw(8) << r.x;
+		cout << setw(8) << r.y;
+		cout << setw(8) << r.z;
+		cout << "  # " << setw(4) << resSeq << " " << resName;
 		cout << '\n';
 	}
 }; // Atom
@@ -180,6 +193,21 @@ public:
 			}
 		}}
 	}
+	void getBonds() {
+		for(int i=0; i<size()-1; i++) {
+			cout << setw(7) << at(i).getSeq() << ' ';
+			cout << setw(7) << at(i+1).getSeq() << ' ';
+			cout << setw(8) << at(i).getCA().distance(at(i+1).getCA()) << '\n';
+		}
+	}
+	void getAngles() {
+		for(int i=0; i<size()-2; i++) {
+			cout << setw(7) << at(i).getSeq() << ' ';
+			cout << setw(7) << at(i+1).getSeq() << ' ';
+			cout << setw(7) << at(i+2).getSeq() << ' ';
+			cout << setw(8) << at(i+1).getCA().angle(at(i).getCA(), at(i+2).getCA()) << '\n';
+		}
+	}
 }; // Molecule
 
 int main(int argc, char *argv[]) {
@@ -212,9 +240,15 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	cout << "# structure" << '\n';
 	for (int i=0; i<mol.size(); i++) {
 		mol.at(i).getCA().show();
 	}
+	cout << "# bonds" << '\n';
+	mol.getBonds();
+	cout << "# angles" << '\n';
+	mol.getAngles();
+	cout << "# native contacts" << '\n';
 	mol.getNatCont(6.5);
 	return 0;
 }
