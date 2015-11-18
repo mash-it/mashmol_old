@@ -91,10 +91,10 @@ public:
 class Residue
 {
 public:
-	vector<Atom*> atoms;
-	Residue() {
-	}
-	void add(Atom* p) {
+	// atoms in Residue is vector of pointer, not vector of atom
+	vector<Atom> atoms;
+	Residue() {}
+	void add(Atom p) {
 		atoms.push_back(p);
 	}
 };
@@ -122,25 +122,17 @@ int main(int argc, char *argv[]) {
 
 	// read pdb file
 	string line;
-
-	vector<Atom> atoms;
-	Residue residue;
+	map<int, Residue> residues;
 
 	while ( getline(fin, line) ) {
 		if (line.substr(0,4).compare("ATOM") == 0) {
-			atoms.push_back(Atom(line));
+			Atom atom(line);
+			residues[atom.getResSeq()].add(atom);
 		}
 	}
 
-	for (int i=0; i < atoms.size(); i++) {
-		Atom* p = &atoms.at(i);
-		if (p->getResSeq() == 1) {
-			residue.add(p);
-		}
-	}
-
-	for (int i=0; i<residue.atoms.size(); i++) {
-		residue.atoms.at(i)->show();
+	for (int i=0; i<residues[1].atoms.size(); i++) {
+		residues[1].atoms.at(i).show();
 	}
 
 	return 0;
