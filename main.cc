@@ -88,24 +88,20 @@ public:
 	}
 };
 
-class Residue
-{
+class Residue: public vector<Atom> {
 public:
-	// atoms in Residue is vector of pointer, not vector of atom
-	vector<Atom> atoms;
-	Residue() {}
-	void add(Atom p) {
-		atoms.push_back(p);
+	void add(Atom a) {
+		this->push_back(a);
 	}
-	float distance(Residue t) {
-		if ((atoms.size() == 0) || (t.atoms.size() == 0)) {
+	float distance(Residue other) {
+		if ((this->size() == 0) || (other.size() == 0)) {
 			throw; // empty residue has no distance
 		}
-		float d = atoms.at(0).distance(t.atoms.at(0));
+		float d = this->at(0).distance(other.at(0));
 
-		for (int i=0; i<atoms.size(); i++) {
-			for (int j=0; j<t.atoms.size(); j++) {
-				d = min(d, atoms.at(i).distance(t.atoms.at(j)));
+		for (int i=0; i<this->size(); i++) {
+			for (int j=0; j<other.size(); j++) {
+				d = min(d, this->at(i).distance(other.at(j)));
 			}
 		}
 		return d;
@@ -142,13 +138,13 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	for (int i=1; i<=76; i++) {
-		for (int j=1; j<i-3; j++) {
-			float d = residues[i].distance(residues[j]);
-			if (d < 6.5) cout << i << " " << j << " " << d << endl;
+	for (map<int, Residue>::iterator i=residues.begin(); i!=residues.end(); ++i) {
+		for (map<int, Residue>::iterator j=residues.begin(); j!=residues.end(); ++j) {
+			if (i->first >= j->first - 3) continue;
+			float d = i->second.distance(j->second);
+			if (d < 6.5) cout << i->first << " " << j->first << " " << d << endl;
 		}
 	}
-
 	return 0;
 }
 
