@@ -2,10 +2,17 @@
 #include <fstream>
 #include <unistd.h>
 #include <cmath> // pow, sqrt
+#include <algorithm> // remove_if
 #include <vector>
-#include <map>
 #include <string>
 using namespace std;
+
+namespace util {
+	string removeSpaces(string s) {
+		s.erase(remove(s.begin(), s.end(), ' '),s.end());
+		return s;
+	}
+};
 
 class Vector3D
 {
@@ -61,7 +68,7 @@ class Atom
 public:
 	Atom(string line): r(0,0,0) {
 		serial = stoi(line.substr(6,5));
-		name = line.substr(12,4);
+		name = util::removeSpaces(line.substr(12,4));
 		altLoc = line.substr(16,1);
 		resName = line.substr(17,3);
 		chainID = line.substr(21,1);
@@ -83,14 +90,20 @@ public:
 	int getResSeq() {
 		return resSeq;
 	}
-	void show() {
-		cout << serial << " " << resSeq << " " << r << " " << r.norm() << endl;
+	string getName() {
+		return name;
 	}
-};
+	void show() {
+		cout << serial << " " << resSeq << " '" << name << "' "<< r << " " << r.norm() << endl;
+	}
+}; // Atom
 
 class Residue: public vector<Atom> {
-public:
 	int seq;
+public:
+	int getSeq() {
+		return seq;
+	};
 	Residue() {
 		seq = -1; // this means no atoms in the residue
 	}
@@ -117,16 +130,35 @@ public:
 		}
 		return d;
 	}
+	Atom getCA() {
+		for (int i=0; i<size(); i++) {
+			if(at(i).getName() == "CA") return at(i);
+		}
+		return at(0);
+		//throw "No CA Atom in this residue"; // No CA ATOM in this residue
+	}
+};
+
+class NativeContact {
+	Residue res1, res2;	
+	float natdist;
+public:
+	NativeContact(Residue residue1, Residue residue2, float distance) {
+		res1 = residue1;
+		res2 = residue2;
+		natdist = distance;
+	}
 };
 
 class Molecule: public vector<Residue> {
+	vector<NativeContact> natconts;
 public:
 	void add(Residue res) {
 		push_back(res);
 	}
 	void add(Atom atom) {
 		for(int i=0; i<size(); i++) {
-			if (at(i).seq == atom.getResSeq()) {
+			if (at(i).getSeq() == atom.getResSeq()) {
 				at(i).add(atom);
 				return;
 			}
@@ -135,16 +167,17 @@ public:
 		add(Residue());
 		back().add(atom);
 	}
+	void addContact(NativeContact cont) {
+		natconts.push_back(cont);
+	}
 	void getNatCont(float dfcontact) {
-		for(int i=0; i<size(); i++) {
-			for(int j=0; j<size(); j++) {
-				if(at(i).seq >= at(j).seq-3) continue;
-				float dist = at(i).distance(at(j));
-				if (dist < dfcontact) {
-					cout << i << " " << j << " " << dist << '\n';
-				}
+		for(int i=0; i<size(); i++) { for(int j=0; j<size(); j++) {
+			if(at(i).getSeq() >= at(j).getSeq()-3) continue;
+			float dist = at(i).distance(at(j));
+			if (dist < dfcontact) {
+				addContact(NativeContact(at(i), at(j), dist));
 			}
-		}
+		}}
 	}
 };
 
@@ -179,11 +212,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	for (int i=0; i<mol.size(); i++) {
-		mol.at(i).at(0).show();
+		mol.at(i).getCA().show();
 	}
-
 	mol.getNatCont(6.5);
-
 	return 0;
 }
 
