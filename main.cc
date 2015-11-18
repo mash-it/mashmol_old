@@ -97,6 +97,19 @@ public:
 	void add(Atom p) {
 		atoms.push_back(p);
 	}
+	float distance(Residue t) {
+		if ((atoms.size() == 0) || (t.atoms.size() == 0)) {
+			throw; // empty residue has no distance
+		}
+		float d = atoms.at(0).distance(t.atoms.at(0));
+
+		for (int i=0; i<atoms.size(); i++) {
+			for (int j=0; j<t.atoms.size(); j++) {
+				d = min(d, atoms.at(i).distance(t.atoms.at(j)));
+			}
+		}
+		return d;
+	}
 };
 
 int main(int argc, char *argv[]) {
@@ -108,8 +121,6 @@ int main(int argc, char *argv[]) {
 				inpfile = optarg;
 		}
 	}
-
-	cout << inpfile << endl;
 
 	ifstream fin(inpfile.c_str());
 
@@ -131,8 +142,11 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	for (int i=0; i<residues[1].atoms.size(); i++) {
-		residues[1].atoms.at(i).show();
+	for (int i=1; i<=76; i++) {
+		for (int j=1; j<i-3; j++) {
+			float d = residues[i].distance(residues[j]);
+			if (d < 6.5) cout << i << " " << j << " " << d << endl;
+		}
 	}
 
 	return 0;
