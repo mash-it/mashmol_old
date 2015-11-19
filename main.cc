@@ -2,9 +2,11 @@
 #include <iomanip> // setw, setprecision
 #include <fstream> // ifstream
 #include <unistd.h>
-#include <cmath> // pow, sqrt
 #include <algorithm> // remove
 #include <vector>
+
+#include "Vector3D.h"
+
 using namespace std;
 
 const float pi = 3.14159265;
@@ -15,62 +17,6 @@ namespace util {
 		return s;
 	}
 };
-
-class Vector3D
-{
-public:
-	float x, y, z;
-	void setCoord(float argx, float argy, float argz) {
- 		x = argx;
-		y = argy;
-		z = argz;
-	}
-
-	Vector3D(float argx, float argy, float argz) {
-		setCoord(argx, argy, argz);
-	}
-
-	Vector3D operator + (Vector3D other) {
-		return Vector3D(x + other.x, y + other.y, z + other.z);
-	}
-
-	Vector3D operator - (Vector3D other) {
-		return Vector3D(x - other.x, y - other.y, z - other.z);
-	}
-	float operator * (Vector3D other) {
-		return this->x * other.x + this->y * other.y + this->z * other.z;
-	}
-	Vector3D cross (Vector3D t) {
-		return Vector3D(y*t.z - z*t.y, z*t.x - x*t.z, x*t.y - y*t.x);
-	}
-	float norm() {
-		return sqrt(pow(x,2) + pow(y,2) + pow(z,2));
-	}
-	static float angle(Vector3D l, Vector3D c, Vector3D r) {
-		Vector3D a = l - c;
-		Vector3D b = r - c;
-		return acos((a*b) / (a.norm()*b.norm())) * (180/pi);
-	}
-	static float dihedral(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
-		Vector3D ab = b-a;
-		Vector3D bc = c-b;
-		Vector3D cd = d-c;
-		Vector3D abc = ab.cross(bc);
-		Vector3D bcd = bc.cross(cd);
-		Vector3D abcd = abc.cross(bcd);
-
-		float dihed = acos((abc*bcd) / (abc.norm()*bcd.norm())) * (180/pi);
-		if (bc * abcd > 0) {
-			return dihed;
-		} else {
-			return -dihed;
-		}
-	}
-	friend ostream& operator << (ostream& os, const Vector3D& v) {
-		os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
-		return os;
-	}
-}; // Vector3D
 
 class Atom
 {
