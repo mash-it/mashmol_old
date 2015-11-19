@@ -40,21 +40,22 @@ public:
 	float operator * (Vector3D other) {
 		return this->x * other.x + this->y * other.y + this->z * other.z;
 	}
+	Vector3D corss (Vector3D t) {
+		return Vector3D(y*t.z - z*t.y, z*t.x - x*t.z, x*t.y - y*t.x);
+	}
 	float norm() {
 		return sqrt(pow(x,2) + pow(y,2) + pow(z,2));
 	}
-	float angle(Vector3D left, Vector3D right) {
-		Vector3D a = left  - *this;
-		Vector3D b = right - *this;
+	static float angle(Vector3D l, Vector3D c, Vector3D r) {
+		Vector3D a = l - c;
+		Vector3D b = r - c;
 		return acos((a*b) / (a.norm()*b.norm())) * (180/pi);
 	}
-
 	friend ostream& operator << (ostream& os, const Vector3D& v) {
 		os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 		return os;
 	}
-
-};
+}; // Vector3D
 
 class Atom
 {
@@ -94,7 +95,7 @@ public:
 		return (r - target.r).norm();
 	}
 	float angle(Atom left, Atom right) {
-		return r.angle(left.r, right.r);
+		return Vector3D::angle(left.r, this->r, right.r);
 	}
 	int getResSeq() {
 		return resSeq;
@@ -184,15 +185,6 @@ public:
 	void addContact(NativeContact cont) {
 		natconts.push_back(cont);
 	}
-	void getNatCont(float dfcontact) {
-		for(int i=0; i<size(); i++) { for(int j=0; j<size(); j++) {
-			if(at(i).getSeq() >= at(j).getSeq()-3) continue;
-			float dist = at(i).distance(at(j));
-			if (dist < dfcontact) {
-				addContact(NativeContact(at(i), at(j), dist));
-			}
-		}}
-	}
 	void getBonds() {
 		for(int i=0; i<size()-1; i++) {
 			cout << setw(7) << at(i).getSeq() << ' ';
@@ -207,6 +199,18 @@ public:
 			cout << setw(7) << at(i+2).getSeq() << ' ';
 			cout << setw(8) << at(i+1).getCA().angle(at(i).getCA(), at(i+2).getCA()) << '\n';
 		}
+	}
+	void getNatCont(float dfcontact) {
+		for(int i=0; i<size(); i++) { for(int j=0; j<size(); j++) {
+			if(at(i).getSeq() >= at(j).getSeq()-3) continue;
+			float dist = at(i).distance(at(j));
+			if (dist < dfcontact) {
+				addContact(NativeContact(at(i), at(j), dist));
+				cout << setw(7) << at(i).getSeq() << ' ';
+				cout << setw(7) << at(j).getSeq() << ' ';
+				cout << setw(8) << dist << '\n';
+			}
+		}}
 	}
 }; // Molecule
 
