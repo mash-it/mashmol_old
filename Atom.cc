@@ -2,7 +2,6 @@
 #include <iomanip> // setw
 #include <algorithm> // remove
 
-#include "Vector3D.h"
 #include "Atom.h"
 
 namespace util {

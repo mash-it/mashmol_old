@@ -1,3 +1,6 @@
+#include "Vector3D.h"
+#include <string>
+
 class Atom
 {
 	int serial;
