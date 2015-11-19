@@ -1,81 +1,13 @@
 #include <iostream>
-#include <iomanip> // setw, setprecision
 #include <fstream> // ifstream
+#include <iomanip> // setw, setprecision
 #include <unistd.h>
-#include <algorithm> // remove
 #include <vector>
 
 #include "Vector3D.h"
+#include "Atom.h"
 
 using namespace std;
-
-const float pi = 3.14159265;
-
-namespace util {
-	string removeSpaces(string s) {
-		s.erase(remove(s.begin(), s.end(), ' '),s.end());
-		return s;
-	}
-};
-
-class Atom
-{
-	int serial;
-	string name;
-	string altLoc;
-	string resName;
-	string chainID;
-	int resSeq;
-	string iCode;
-	float occupancy;
-	float tempFactor;
-	string element;
-	string charge;
-	Vector3D r;
-
-public:
-	Atom(string line): r(0,0,0) {
-		serial = stoi(line.substr(6,5));
-		name = util::removeSpaces(line.substr(12,4));
-		altLoc = line.substr(16,1);
-		resName = line.substr(17,3);
-		chainID = line.substr(21,1);
-		resSeq = stoi(line.substr(22,4));
-		iCode = line.substr(26,1);
-		occupancy = stof(line.substr(54,6));
-		tempFactor = stof(line.substr(60,6));
-		element = line.substr(76,2);
-		charge = line.substr(78,2);
-
-		float x = stof(line.substr(30,8));
-		float y = stof(line.substr(38,8));
-		float z = stof(line.substr(46,8));
-		r.setCoord(x,y,z);
-	}
-	float distance(Atom target) {
-		return (r - target.r).norm();
-	}
-	static float angle(Atom left, Atom center, Atom right) {
-		return Vector3D::angle(left.r, center.r, right.r);
-	}
-	static float dihedral(Atom a, Atom b, Atom c, Atom d) {
-		return Vector3D::dihedral(a.r, b.r, c.r, d.r);
-	}
-	int getResSeq() {
-		return resSeq;
-	}
-	string getName() {
-		return name;
-	}
-	void show() {
-		cout << setw(8) << resSeq;
-		cout << setw(8) << r.x;
-		cout << setw(8) << r.y;
-		cout << setw(8) << r.z;
-		cout << "  # " << setw(4) << resSeq << " " << resName;
-		cout << '\n';
-	}
-}; // Atom
 
 class Residue: public vector<Atom> {
 	int seq;
