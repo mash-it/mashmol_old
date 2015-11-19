@@ -40,7 +40,7 @@ public:
 	float operator * (Vector3D other) {
 		return this->x * other.x + this->y * other.y + this->z * other.z;
 	}
-	Vector3D corss (Vector3D t) {
+	Vector3D cross (Vector3D t) {
 		return Vector3D(y*t.z - z*t.y, z*t.x - x*t.z, x*t.y - y*t.x);
 	}
 	float norm() {
@@ -50,6 +50,21 @@ public:
 		Vector3D a = l - c;
 		Vector3D b = r - c;
 		return acos((a*b) / (a.norm()*b.norm())) * (180/pi);
+	}
+	static float dihedral(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
+		Vector3D ab = b-a;
+		Vector3D bc = c-b;
+		Vector3D cd = d-c;
+		Vector3D abc = ab.cross(bc);
+		Vector3D bcd = bc.cross(cd);
+		Vector3D abcd = abc.cross(bcd);
+
+		float dihed = acos((abc*bcd) / (abc.norm()*bcd.norm())) * (180/pi);
+		if (bc * abcd > 0) {
+			return dihed;
+		} else {
+			return -dihed;
+		}
 	}
 	friend ostream& operator << (ostream& os, const Vector3D& v) {
 		os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
@@ -94,8 +109,11 @@ public:
 	float distance(Atom target) {
 		return (r - target.r).norm();
 	}
-	float angle(Atom left, Atom right) {
-		return Vector3D::angle(left.r, this->r, right.r);
+	static float angle(Atom left, Atom center, Atom right) {
+		return Vector3D::angle(left.r, center.r, right.r);
+	}
+	static float dihedral(Atom a, Atom b, Atom c, Atom d) {
+		return Vector3D::dihedral(a.r, b.r, c.r, d.r);
 	}
 	int getResSeq() {
 		return resSeq;
@@ -187,6 +205,7 @@ public:
 	}
 	void getBonds() {
 		for(int i=0; i<size()-1; i++) {
+			cout << setw(7) << "BOND" << ' ';
 			cout << setw(7) << at(i).getSeq() << ' ';
 			cout << setw(7) << at(i+1).getSeq() << ' ';
 			cout << setw(8) << at(i).getCA().distance(at(i+1).getCA()) << '\n';
@@ -194,10 +213,21 @@ public:
 	}
 	void getAngles() {
 		for(int i=0; i<size()-2; i++) {
+			cout << setw(7) << "ANGLE" << ' ';
 			cout << setw(7) << at(i).getSeq() << ' ';
 			cout << setw(7) << at(i+1).getSeq() << ' ';
 			cout << setw(7) << at(i+2).getSeq() << ' ';
-			cout << setw(8) << at(i+1).getCA().angle(at(i).getCA(), at(i+2).getCA()) << '\n';
+			cout << setw(8) << Atom::angle(at(i).getCA(), at(i+1).getCA(), at(i+2).getCA()) << '\n';
+		}
+	}
+	void getDihedral() {
+		for(int i=0; i<size()-3; i++) {
+			cout << setw(7) << "DIHED" << ' ';
+			cout << setw(7) << at(i).getSeq() << ' ';
+			cout << setw(7) << at(i+1).getSeq() << ' ';
+			cout << setw(7) << at(i+2).getSeq() << ' ';
+			cout << setw(7) << at(i+3).getSeq() << ' ';
+			cout << setw(8) << Atom::dihedral(at(i).getCA(), at(i+1).getCA(), at(i+2).getCA(), at(i+3).getCA()) << '\n';
 		}
 	}
 	void getNatCont(float dfcontact) {
@@ -206,6 +236,7 @@ public:
 			float dist = at(i).distance(at(j));
 			if (dist < dfcontact) {
 				addContact(NativeContact(at(i), at(j), dist));
+				cout << setw(7) << "CONT" << ' ';
 				cout << setw(7) << at(i).getSeq() << ' ';
 				cout << setw(7) << at(j).getSeq() << ' ';
 				cout << setw(8) << dist << '\n';
@@ -252,6 +283,8 @@ int main(int argc, char *argv[]) {
 	mol.getBonds();
 	cout << "# angles" << '\n';
 	mol.getAngles();
+	cout << "# dihedral" << '\n';
+	mol.getDihedral();
 	cout << "# native contacts" << '\n';
 	mol.getNatCont(6.5);
 	return 0;
