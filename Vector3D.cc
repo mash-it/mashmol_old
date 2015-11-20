@@ -63,3 +63,7 @@ float Vector3D::dihedral(Vector3D a, Vector3D b, Vector3D c, Vector3D d)
 	}
 }
 
+std::ostream& operator << (std::ostream& os, const Vector3D& v) {
+	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+	return os;
+}
