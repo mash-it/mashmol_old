@@ -10,7 +10,8 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	string inpfile = "input.pdb";
-	string outfile = "output.dat";
+	string atomfile = "atom.dat";
+	string ninfofile = "ninfo.dat";
 
 	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
@@ -21,7 +22,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	ifstream fin(inpfile.c_str());
-	ofstream fout(outfile.c_str());
 
 	// open pdb file
 	if (fin.fail())
@@ -41,18 +41,29 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	cout << "# structure" << '\n';
+	
+	// write atom file
+	ofstream afout(atomfile.c_str());
+	
+	afout << "# structure" << '\n';
 	for (int i=0; i<mol.size(); i++) {
-		mol.at(i).getCA().show();
+		afout << mol.at(i).getCA().write();
 	}
-	fout << "# bonds" << '\n';
-	mol.writeBonds(fout);
-	fout << "# angles" << '\n';
-	mol.writeAngles(fout);
-	fout << "# dihedral" << '\n';
-	mol.writeDihedral(fout);
-	fout << "# native contacts" << '\n';
-	mol.writeNatCont(fout, 6.5);
+	afout.close();
+	
+	// write ninfo file
+	ofstream nfout(ninfofile.c_str());
+	
+	nfout << "# bonds" << '\n';
+	mol.writeBonds(nfout);
+	nfout << "# angles" << '\n';
+	mol.writeAngles(nfout);
+	nfout << "# dihedral" << '\n';
+	mol.writeDihedral(nfout);
+	nfout << "# native contacts" << '\n';
+	mol.writeNatCont(nfout, 6.5);
+	
+	nfout.close();
 	return 0;
 }
 

@@ -26,7 +26,7 @@ public:
 	static float dihedral(Atom a, Atom b, Atom c, Atom d);
 	int getResSeq();
 	std::string getName();
-	void show();
+	std::string write();
 };
 
 #endif

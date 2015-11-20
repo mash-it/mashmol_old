@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip> // setw
 #include <algorithm> // remove
+#include <sstream> // stringstream
 
 #include "Atom.h"
 
@@ -50,13 +51,17 @@ std::string Atom::getName() {
 	return name;
 }
 
-void Atom::show() {
-	std::cout << std::setw(8) << resSeq;
-	std::cout << std::setw(8) << r.x;
-	std::cout << std::setw(8) << r.y;
-	std::cout << std::setw(8) << r.z;
-	std::cout << "  # " << std::setw(4) << resSeq << " " << resName;
-	std::cout << '\n';
+std::string Atom::write() {
+	std::stringstream ss;
+
+	ss << std::setw(8) << resSeq;
+	ss << std::setw(8) << r.x;
+	ss << std::setw(8) << r.y;
+	ss << std::setw(8) << r.z;
+	ss << "  # " << std::setw(4) << resSeq << " " << resName;
+	ss << '\n';
+
+	return ss.str();
 }
 
 
