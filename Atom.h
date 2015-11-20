@@ -1,5 +1,8 @@
-#include "Vector3D.h"
+#ifndef _Atom_
+#define _Atom_
+
 #include <string>
+#include "Vector3D.h"
 
 class Atom
 {
@@ -26,3 +29,4 @@ public:
 	void show();
 };
 
+#endif

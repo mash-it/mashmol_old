@@ -1,3 +1,9 @@
+#ifndef _Residue_
+#define _Residue_
+
+#include "Atom.h"
+#include <vector>
+
 class Residue: public std::vector<Atom> {
 	int seq;
 public:
@@ -8,3 +14,4 @@ public:
 	Atom getCA();
 };
 
+#endif

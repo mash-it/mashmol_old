@@ -1,3 +1,6 @@
+#ifndef _Vector3D_
+#define _Vector3D_
+
 #include <iostream>
 
 class Vector3D
@@ -19,3 +22,4 @@ public:
 	}
 };
 
+#endif

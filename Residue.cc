@@ -1,7 +1,4 @@
 #include <unistd.h>
-#include <vector>
-
-#include "Atom.h"
 #include "Residue.h"
 
 Residue::Residue() {
