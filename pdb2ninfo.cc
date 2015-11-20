@@ -20,9 +20,9 @@ int main(int argc, char *argv[]) {
 	}
 	std::cout << "Read " << inpfile << '\n';
 
+	// open pdb file
 	std::ifstream fin(inpfile.c_str());
 
-	// open pdb file
 	if (fin.fail())
 	{
 		std::cerr << "failed to open " << inpfile << std::endl;

@@ -1,3 +1,4 @@
 *.pdb
 *.dat
 pdb2ninfo
+mdrun

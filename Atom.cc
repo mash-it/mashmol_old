@@ -1,16 +1,9 @@
 #include <iostream>
 #include <iomanip> // setw
-#include <algorithm> // remove
 #include <sstream> // stringstream
 
 #include "Atom.h"
-
-namespace util {
-	std::string removeSpaces(std::string s) {
-		s.erase(remove(s.begin(), s.end(), ' '),s.end());
-		return s;
-	}
-};
+#include "util.h"
 
 Atom::Atom(std::string line): r(0,0,0) {
 	serial = stoi(line.substr(6,5));
@@ -54,7 +47,7 @@ std::string Atom::getName() {
 std::string Atom::write() {
 	std::stringstream ss;
 
-	ss << std::setw(8) << resSeq;
+	ss << std::setw(8) << "ATOM";
 	ss << std::setw(8) << r.x;
 	ss << std::setw(8) << r.y;
 	ss << std::setw(8) << r.z;
