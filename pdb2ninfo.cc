@@ -6,12 +6,10 @@
 
 #include "Molecule.h"
 
-using namespace std;
-
 int main(int argc, char *argv[]) {
-	string inpfile = "input.pdb";
-	string atomfile = "atom.dat";
-	string ninfofile = "ninfo.dat";
+	std::string inpfile = "input.pdb";
+	std::string atomfile = "atom.dat";
+	std::string ninfofile = "ninfo.dat";
 
 	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
@@ -20,18 +18,19 @@ int main(int argc, char *argv[]) {
 				inpfile = optarg;
 		}
 	}
+	std::cout << "Read " << inpfile << '\n';
 
-	ifstream fin(inpfile.c_str());
+	std::ifstream fin(inpfile.c_str());
 
 	// open pdb file
 	if (fin.fail())
 	{
-		cerr << "failed to open " << inpfile << endl;
+		std::cerr << "failed to open " << inpfile << std::endl;
 		return 1;
 	}
 
 	// read pdb file
-	string line;
+	std::string line;
 
 	Molecule mol;
 	while ( getline(fin, line) ) {
@@ -41,9 +40,10 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	std::cout << "Write " << atomfile << " and " << ninfofile << '\n';
 	
 	// write atom file
-	ofstream afout(atomfile.c_str());
+	std::ofstream afout(atomfile.c_str());
 	
 	afout << "# structure" << '\n';
 	for (int i=0; i<mol.size(); i++) {
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 	afout.close();
 	
 	// write ninfo file
-	ofstream nfout(ninfofile.c_str());
+	std::ofstream nfout(ninfofile.c_str());
 	
 	nfout << "# bonds" << '\n';
 	nfout << mol.writeBonds();
@@ -64,6 +64,8 @@ int main(int argc, char *argv[]) {
 	nfout << mol.writeNatCont(6.5);
 	
 	nfout.close();
+
+
 	return 0;
 }
 
