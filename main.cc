@@ -55,13 +55,13 @@ int main(int argc, char *argv[]) {
 	ofstream nfout(ninfofile.c_str());
 	
 	nfout << "# bonds" << '\n';
-	mol.writeBonds(nfout);
+	nfout << mol.writeBonds();
 	nfout << "# angles" << '\n';
-	mol.writeAngles(nfout);
+	nfout << mol.writeAngles();
 	nfout << "# dihedral" << '\n';
-	mol.writeDihedral(nfout);
+	nfout << mol.writeDihedral();
 	nfout << "# native contacts" << '\n';
-	mol.writeNatCont(nfout, 6.5);
+	nfout << mol.writeNatCont(6.5);
 	
 	nfout.close();
 	return 0;
