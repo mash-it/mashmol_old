@@ -9,10 +9,10 @@ class Molecule: public std::vector<Residue> {
 public:
 	void add(Residue res);
 	void add(Atom atom);
-	void getBonds();
-	void getAngles();
-	void getDihedral();
-	void getNatCont(float dfcontact);
+	void writeBonds(std::ostream& os);
+	void writeAngles(std::ostream& os);
+	void writeDihedral(std::ostream& os);
+	void writeNatCont(std::ostream& os, float dfcontact);
 };
 
 #endif

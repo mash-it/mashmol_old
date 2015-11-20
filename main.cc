@@ -43,13 +43,13 @@ int main(int argc, char *argv[]) {
 		mol.at(i).getCA().show();
 	}
 	cout << "# bonds" << '\n';
-	mol.getBonds();
+	mol.writeBonds(cout);
 	cout << "# angles" << '\n';
-	mol.getAngles();
+	mol.writeAngles(cout);
 	cout << "# dihedral" << '\n';
-	mol.getDihedral();
+	mol.writeDihedral(cout);
 	cout << "# native contacts" << '\n';
-	mol.getNatCont(6.5);
+	mol.writeNatCont(cout, 6.5);
 	return 0;
 }
 
