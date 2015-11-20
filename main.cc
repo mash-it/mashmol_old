@@ -10,6 +10,8 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	string inpfile = "input.pdb";
+	string outfile = "output.dat";
+
 	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
 		switch(opt) {
@@ -19,6 +21,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	ifstream fin(inpfile.c_str());
+	ofstream fout(outfile.c_str());
 
 	// open pdb file
 	if (fin.fail())
@@ -42,14 +45,14 @@ int main(int argc, char *argv[]) {
 	for (int i=0; i<mol.size(); i++) {
 		mol.at(i).getCA().show();
 	}
-	cout << "# bonds" << '\n';
-	mol.writeBonds(cout);
-	cout << "# angles" << '\n';
-	mol.writeAngles(cout);
-	cout << "# dihedral" << '\n';
-	mol.writeDihedral(cout);
-	cout << "# native contacts" << '\n';
-	mol.writeNatCont(cout, 6.5);
+	fout << "# bonds" << '\n';
+	mol.writeBonds(fout);
+	fout << "# angles" << '\n';
+	mol.writeAngles(fout);
+	fout << "# dihedral" << '\n';
+	mol.writeDihedral(fout);
+	fout << "# native contacts" << '\n';
+	mol.writeNatCont(fout, 6.5);
 	return 0;
 }
 
