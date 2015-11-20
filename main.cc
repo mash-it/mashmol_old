@@ -9,19 +9,7 @@
 
 using namespace std;
 
-class NativeContact {
-	Residue res1, res2;	
-	float natdist;
-public:
-	NativeContact(Residue residue1, Residue residue2, float distance) {
-		res1 = residue1;
-		res2 = residue2;
-		natdist = distance;
-	}
-}; // NativeContact
-
 class Molecule: public vector<Residue> {
-	vector<NativeContact> natconts;
 public:
 	void add(Residue res) {
 		push_back(res);
@@ -36,9 +24,6 @@ public:
 		// if no residue for this atom
 		add(Residue());
 		back().add(atom);
-	}
-	void addContact(NativeContact cont) {
-		natconts.push_back(cont);
 	}
 	void getBonds() {
 		for(int i=0; i<size()-1; i++) {
@@ -72,7 +57,6 @@ public:
 			if(at(i).getSeq() >= at(j).getSeq()-3) continue;
 			float dist = at(i).distance(at(j));
 			if (dist < dfcontact) {
-				addContact(NativeContact(at(i), at(j), dist));
 				cout << setw(7) << "CONT" << ' ';
 				cout << setw(7) << at(i).getSeq() << ' ';
 				cout << setw(7) << at(j).getSeq() << ' ';
