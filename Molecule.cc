@@ -17,10 +17,10 @@ void Molecule::add(Atom atom) {
 	back().add(atom);
 }
 
-std::string Molecule::writeBonds() {
+std::string Molecule::writeStretches() {
 	std::stringstream ss;
 	for(int i=0; i<size()-1; i++) {
-		ss << std::setw(7) << "BOND" << ' ';
+		ss << std::setw(7) << "STRETCH" << ' ';
 		ss << std::setw(7) << at(i).getSeq() << ' ';
 		ss << std::setw(7) << at(i+1).getSeq() << ' ';
 		ss << std::setw(8) << at(i).getCA().distance(at(i+1).getCA()) << '\n';

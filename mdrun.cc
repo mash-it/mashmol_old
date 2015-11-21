@@ -5,7 +5,7 @@
 
 using namespace std;
 
-class Bond
+class Stretch
 {
 public:
 	int n1, n2;
@@ -42,7 +42,7 @@ class MdSystem
 	vector<float> vx;
 	vector<float> vy;
 	vector<float> vz;
-	vector<Bond> bond;
+	vector<Stretch> stretch;
 	vector<Angle> angle;
 	vector<Dihedral> dihedral;
 	vector<Contact> contact;
@@ -57,8 +57,8 @@ public:
 		vy.resize(natoms);
 		vz.resize(natoms);
 	}
-	void setNForces(int b, int a, int d, int c) {
-		bond.resize(b);
+	void setNForces(int s, int a, int d, int c) {
+		stretch.resize(s);
 		angle.resize(a);
 		dihedral.resize(d);
 		contact.resize(c);
@@ -67,6 +67,17 @@ public:
 		rx[i] = x;
 		ry[i] = y;
 		rz[i] = z;
+	}
+	void setStretch(int i, int n1, int n2, float length) {
+		stretch[i].n1 = n1;
+		stretch[i].n2 = n2;
+		stretch[i].length = length;
+	}
+	void setAngle(int i, int n1, int n2, int n3, float a) {
+		angle[i].n1 = n1;
+		angle[i].n2 = n2;
+		angle[i].n3 = n3;
+		angle[i].angle = a;
 	}
 };
 
@@ -119,27 +130,42 @@ int main(int argc, char *argv[]) {
 	{
 		std::ifstream forceFile(forcePath.c_str());
 
-		int nbonds=0, nangles=0, ndiheds=0, nconts=0;
+		int nstretchs=0, nangles=0, ndiheds=0, nconts=0;
 		while (std::getline(forceFile, bufferLine)) {
 			record = util::removeSpaces(bufferLine.substr(0,8));
-			if (record == "BOND") nbonds++;
+			if (record == "STRETCH") nstretchs++;
 			if (record == "ANGLE") nangles++;
 			if (record == "DIHED") ndiheds++;
 			if (record == "CONT") nconts++;
 		}
-		md.setNForces(nbonds, nangles, ndiheds, nconts);
-		cout << nbonds << " " << nangles << " " << ndiheds << " " << nconts << endl;
+		md.setNForces(nstretchs, nangles, ndiheds, nconts);
+		cout << nstretchs << " " << nangles << " " << ndiheds << " " << nconts << endl;
 		forceFile.clear();
 
 		forceFile.seekg(0, ios_base::beg);
-		int i=0;
-		float x,y,z;
+		int istretchs=0, iangles=0, idiheds=0, iconts=0;
+		int n1, n2, n3, n4;
+		float val;
+
 		while (std::getline(forceFile, bufferLine)) {;
 			record = util::removeSpaces(bufferLine.substr(0,8));
-			if (record == "BOND") {
-				
+			if (record == "STRETCH") {
+				n1 = stoi(bufferLine.substr( 8,8));
+				n2 = stoi(bufferLine.substr(16,8));
+				val= stoi(bufferLine.substr(24,8));
+				md.setStretch(istretchs, n1, n2, val);
+				istretchs++;
+			}
+			if (record == "ANGLE") {
+				n1 = stoi(bufferLine.substr( 8,8));
+				n2 = stoi(bufferLine.substr(16,8));
+				n3 = stoi(bufferLine.substr(24,8));
+				val= stoi(bufferLine.substr(30,8));
+				md.setAngle(iangles, n1, n2, n3, val);
+				iangles++;
 			}
 		}
+
 		forceFile.close();
 	}
 }

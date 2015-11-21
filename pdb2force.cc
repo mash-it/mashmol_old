@@ -54,9 +54,9 @@ int main(int argc, char *argv[]) {
 	// write force file
 	std::ofstream nfout(forcefile.c_str());
 	
-	nfout << "# bonds" << '\n';
-	nfout << mol.writeBonds();
-	nfout << "# angles" << '\n';
+	nfout << "# stretch" << '\n';
+	nfout << mol.writeStretches();
+	nfout << "# angle" << '\n';
 	nfout << mol.writeAngles();
 	nfout << "# dihedral" << '\n';
 	nfout << mol.writeDihedral();

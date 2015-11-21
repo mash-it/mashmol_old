@@ -9,7 +9,7 @@ class Molecule: public std::vector<Residue> {
 public:
 	void add(Residue res);
 	void add(Atom atom);
-	std::string writeBonds();
+	std::string writeStretches();
 	std::string writeAngles();
 	std::string writeDihedral();
 	std::string writeNatCont(float dfcontact);
