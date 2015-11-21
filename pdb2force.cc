@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
 	std::string inpfile = "input.pdb";
 	std::string atomfile = "atom.dat";
-	std::string ninfofile = "ninfo.dat";
+	std::string forcefile = "force.dat";
 
 	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	std::cout << "Write " << atomfile << " and " << ninfofile << '\n';
+	std::cout << "Write " << atomfile << " and " << forcefile << '\n';
 	
 	// write atom file
 	std::ofstream afout(atomfile.c_str());
@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
 	}
 	afout.close();
 	
-	// write ninfo file
-	std::ofstream nfout(ninfofile.c_str());
+	// write force file
+	std::ofstream nfout(forcefile.c_str());
 	
 	nfout << "# bonds" << '\n';
 	nfout << mol.writeBonds();

@@ -72,7 +72,7 @@ public:
 
 int main(int argc, char *argv[]) {
 	std::string atomPath = "atom.dat";
-	std::string ninfoPath = "ninfo.dat";
+	std::string forcePath = "force.dat";
 	std::string confPath = "conf.dat";
 	std::string bufferLine, record;
 	MdSystem md;
@@ -117,10 +117,10 @@ int main(int argc, char *argv[]) {
 
 	// read force file
 	{
-		std::ifstream ninfoFile(ninfoPath.c_str());
+		std::ifstream forceFile(forcePath.c_str());
 
 		int nbonds=0, nangles=0, ndiheds=0, nconts=0;
-		while (std::getline(ninfoFile, bufferLine)) {
+		while (std::getline(forceFile, bufferLine)) {
 			record = util::removeSpaces(bufferLine.substr(0,8));
 			if (record == "BOND") nbonds++;
 			if (record == "ANGLE") nangles++;
@@ -129,17 +129,17 @@ int main(int argc, char *argv[]) {
 		}
 		md.setNForces(nbonds, nangles, ndiheds, nconts);
 		cout << nbonds << " " << nangles << " " << ndiheds << " " << nconts << endl;
-		ninfoFile.clear();
+		forceFile.clear();
 
-		ninfoFile.seekg(0, ios_base::beg);
+		forceFile.seekg(0, ios_base::beg);
 		int i=0;
 		float x,y,z;
-		while (std::getline(ninfoFile, bufferLine)) {;
+		while (std::getline(forceFile, bufferLine)) {;
 			record = util::removeSpaces(bufferLine.substr(0,8));
 			if (record == "BOND") {
 				
 			}
 		}
-		ninfoFile.close();
+		forceFile.close();
 	}
 }
