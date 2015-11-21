@@ -79,6 +79,18 @@ public:
 		angle[i].n3 = n3;
 		angle[i].angle = a;
 	}
+	void setDiheds(int i, int n1, int n2, int n3, int n4, float d) {
+		dihedral[i].n1 = n1;
+		dihedral[i].n2 = n2;
+		dihedral[i].n3 = n3;
+		dihedral[i].n4 = n4;
+		dihedral[i].dangle = d;
+	}
+	void setContacts(int i, int n1, int n2, float distance) {
+		contact[i].n1 = n1;
+		contact[i].n2 = n2;
+		contact[i].distance = distance;
+	}
 };
 
 int main(int argc, char *argv[]) {
@@ -136,7 +148,7 @@ int main(int argc, char *argv[]) {
 			if (record == "STRETCH") nstretchs++;
 			if (record == "ANGLE") nangles++;
 			if (record == "DIHED") ndiheds++;
-			if (record == "CONT") nconts++;
+			if (record == "CONTACT") nconts++;
 		}
 		md.setNForces(nstretchs, nangles, ndiheds, nconts);
 		cout << nstretchs << " " << nangles << " " << ndiheds << " " << nconts << endl;
@@ -152,7 +164,7 @@ int main(int argc, char *argv[]) {
 			if (record == "STRETCH") {
 				n1 = stoi(bufferLine.substr( 8,8));
 				n2 = stoi(bufferLine.substr(16,8));
-				val= stoi(bufferLine.substr(24,8));
+				val= stof(bufferLine.substr(24,8));
 				md.setStretch(istretchs, n1, n2, val);
 				istretchs++;
 			}
@@ -160,11 +172,30 @@ int main(int argc, char *argv[]) {
 				n1 = stoi(bufferLine.substr( 8,8));
 				n2 = stoi(bufferLine.substr(16,8));
 				n3 = stoi(bufferLine.substr(24,8));
-				val= stoi(bufferLine.substr(30,8));
+				val= stof(bufferLine.substr(32,8));
 				md.setAngle(iangles, n1, n2, n3, val);
 				iangles++;
 			}
+			if (record == "DIHED") {
+				n1 = stoi(bufferLine.substr( 8,8));
+				n2 = stoi(bufferLine.substr(16,8));
+				n3 = stoi(bufferLine.substr(24,8));
+				n3 = stoi(bufferLine.substr(24,8));
+				n4 = stoi(bufferLine.substr(32,8));
+				val= stof(bufferLine.substr(40,8));
+				md.setDiheds(idiheds, n1, n2, n3, n4, val);
+				idiheds++;
+			}
+			if (record == "CONTACT") {
+				n1 = stoi(bufferLine.substr( 8,8));
+				n2 = stoi(bufferLine.substr(16,8));
+				val= stof(bufferLine.substr(24,8));
+				md.setContacts(iconts, n1, n2, val);
+				iconts++;
+			}
 		}
+
+		cout << istretchs << " " << iangles << " " << idiheds << " " << iconts << endl;
 
 		forceFile.close();
 	}

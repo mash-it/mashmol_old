@@ -56,7 +56,7 @@ std::string Molecule::writeNatCont(float dfcontact) {
 		if(at(i).getSeq() >= at(j).getSeq()-3) continue;
 		float dist = at(i).distance(at(j));
 		if (dist < dfcontact) {
-			ss << std::setw(7) << "CONT" << ' ';
+			ss << std::setw(7) << "CONTACT" << ' ';
 			ss << std::setw(7) << at(i).getSeq() << ' ';
 			ss << std::setw(7) << at(j).getSeq() << ' ';
 			ss << std::setw(8) << dist << '\n';
