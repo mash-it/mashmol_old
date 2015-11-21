@@ -10,7 +10,7 @@ public:
 	void add(Residue res);
 	void add(Atom atom);
 	std::string writeStretches();
-	std::string writeAngles();
+	std::string writeBends();
 	std::string writeDihedral();
 	std::string writeNatCont(float dfcontact);
 };

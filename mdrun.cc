@@ -12,7 +12,7 @@ public:
 	float length; // bond length
 };
 
-class Angle
+class Bend
 {
 public:
 	int n1, n2, n3;
@@ -43,7 +43,7 @@ class MdSystem
 	vector<float> vy;
 	vector<float> vz;
 	vector<Stretch> stretch;
-	vector<Angle> angle;
+	vector<Bend> bend;
 	vector<Dihedral> dihedral;
 	vector<Contact> contact;
 
@@ -59,7 +59,7 @@ public:
 	}
 	void setNForces(int s, int a, int d, int c) {
 		stretch.resize(s);
-		angle.resize(a);
+		bend.resize(a);
 		dihedral.resize(d);
 		contact.resize(c);
 	}
@@ -68,16 +68,16 @@ public:
 		ry[i] = y;
 		rz[i] = z;
 	}
-	void setStretch(int i, int n1, int n2, float length) {
+	void setStretches(int i, int n1, int n2, float length) {
 		stretch[i].n1 = n1;
 		stretch[i].n2 = n2;
 		stretch[i].length = length;
 	}
-	void setAngle(int i, int n1, int n2, int n3, float a) {
-		angle[i].n1 = n1;
-		angle[i].n2 = n2;
-		angle[i].n3 = n3;
-		angle[i].angle = a;
+	void setBends(int i, int n1, int n2, int n3, float angle) {
+		bend[i].n1 = n1;
+		bend[i].n2 = n2;
+		bend[i].n3 = n3;
+		bend[i].angle = angle;
 	}
 	void setDiheds(int i, int n1, int n2, int n3, int n4, float d) {
 		dihedral[i].n1 = n1;
@@ -142,20 +142,20 @@ int main(int argc, char *argv[]) {
 	{
 		std::ifstream forceFile(forcePath.c_str());
 
-		int nstretchs=0, nangles=0, ndiheds=0, nconts=0;
+		int nstretchs=0, nbends=0, ndiheds=0, nconts=0;
 		while (std::getline(forceFile, bufferLine)) {
 			record = util::removeSpaces(bufferLine.substr(0,8));
 			if (record == "STRETCH") nstretchs++;
-			if (record == "ANGLE") nangles++;
+			if (record == "BEND") nbends++;
 			if (record == "DIHED") ndiheds++;
 			if (record == "CONTACT") nconts++;
 		}
-		md.setNForces(nstretchs, nangles, ndiheds, nconts);
-		cout << nstretchs << " " << nangles << " " << ndiheds << " " << nconts << endl;
+		md.setNForces(nstretchs, nbends, ndiheds, nconts);
+		cout << nstretchs << " " << nbends << " " << ndiheds << " " << nconts << endl;
 		forceFile.clear();
 
 		forceFile.seekg(0, ios_base::beg);
-		int istretchs=0, iangles=0, idiheds=0, iconts=0;
+		int istretchs=0, ibends=0, idiheds=0, iconts=0;
 		int n1, n2, n3, n4;
 		float val;
 
@@ -165,16 +165,16 @@ int main(int argc, char *argv[]) {
 				n1 = stoi(bufferLine.substr( 8,8));
 				n2 = stoi(bufferLine.substr(16,8));
 				val= stof(bufferLine.substr(24,8));
-				md.setStretch(istretchs, n1, n2, val);
+				md.setStretches(istretchs, n1, n2, val);
 				istretchs++;
 			}
-			if (record == "ANGLE") {
+			if (record == "BEND") {
 				n1 = stoi(bufferLine.substr( 8,8));
 				n2 = stoi(bufferLine.substr(16,8));
 				n3 = stoi(bufferLine.substr(24,8));
 				val= stof(bufferLine.substr(32,8));
-				md.setAngle(iangles, n1, n2, n3, val);
-				iangles++;
+				md.setBends(ibends, n1, n2, n3, val);
+				ibends++;
 			}
 			if (record == "DIHED") {
 				n1 = stoi(bufferLine.substr( 8,8));
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		cout << istretchs << " " << iangles << " " << idiheds << " " << iconts << endl;
+		cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << endl;
 
 		forceFile.close();
 	}

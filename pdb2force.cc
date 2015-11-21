@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
 	
 	nfout << "# stretch" << '\n';
 	nfout << mol.writeStretches();
-	nfout << "# angle" << '\n';
-	nfout << mol.writeAngles();
+	nfout << "# bend" << '\n';
+	nfout << mol.writeBends();
 	nfout << "# dihedral" << '\n';
 	nfout << mol.writeDihedral();
 	nfout << "# native contacts" << '\n';

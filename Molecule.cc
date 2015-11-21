@@ -27,10 +27,10 @@ std::string Molecule::writeStretches() {
 	}
 	return ss.str();
 }
-std::string Molecule::writeAngles() {
+std::string Molecule::writeBends() {
 	std::stringstream ss;
 	for(int i=0; i<size()-2; i++) {
-		ss << std::setw(7) << "ANGLE" << ' ';
+		ss << std::setw(7) << "BEND" << ' ';
 		ss << std::setw(7) << at(i).getSeq() << ' ';
 		ss << std::setw(7) << at(i+1).getSeq() << ' ';
 		ss << std::setw(7) << at(i+2).getSeq() << ' ';
