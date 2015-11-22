@@ -46,7 +46,7 @@ class MdSystem
 	std::vector<Contact> contact;
 
 	// system information
-	int natoms;	// number of atoms
+	int maxMdIndex;
 	float dt;	// time step
 	float k_stretch; // spring constant for stretching
 	float k_bend; // ... for bending
@@ -57,7 +57,7 @@ public:
 	MdSystem();
 	void setNAtoms(int natoms);
 	void setNForces(int s, int a, int d, int c);
-	void setAtom(int i, int mdi, float x, float y, float z);
+	void setAtom(int i, float x, float y, float z);
 	void setStretch(int i, int n1, int n2, float length);
 	void setBend(int i, int n1, int n2, int n3, float angle);
 	void setDihed(int i, int n1, int n2, int n3, int n4, float d);

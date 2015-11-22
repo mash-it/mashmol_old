@@ -3,8 +3,10 @@
 #include <cmath>
 #include "MdSystem.h"
 
+using namespace std;
+
 MdSystem::MdSystem() {
-	dt = 1;
+	dt = 0.001;
 	k_stretch = 100.0;
 	k_bend = 20.0;
 	k_dihed1 = 1.0;
@@ -12,8 +14,8 @@ MdSystem::MdSystem() {
 }
 
 void MdSystem::setNAtoms(int n) {
-	natoms = n;
-	mdIndex.resize(n);
+	maxMdIndex = n; // max value of mdIndex
+	n++; // avoid 0-th atom
 	rx.resize(n);
 	ry.resize(n);
 	rz.resize(n);
@@ -31,8 +33,7 @@ void MdSystem::setNForces(int s, int a, int d, int c) {
 	dihedral.resize(d);
 	contact.resize(c);
 }
-void MdSystem::setAtom(int i, int mdi, float x, float y, float z) {
-	mdIndex[i] = mdi;
+void MdSystem::setAtom(int i, float x, float y, float z) {
 	rx[i] = x;
 	ry[i] = y;
 	rz[i] = z;
@@ -44,7 +45,29 @@ void MdSystem::setStretch(int i, int n1, int n2, float length) {
 }
 
 void MdSystem::applyStretches() {
+	float drx, dry, drz, dr; // difference of position
+	float f, fx, fy, fz; // force
+	int n1, n2;
 	for(int i=0; i<stretch.size(); i++) {
+		n1 = stretch[i].n1;
+		n2 = stretch[i].n2;
+		drx = rx[n1] - rx[n2];
+		dry = ry[n1] - ry[n2];
+		drz = rz[n1] - rz[n2];
+		dr  = sqrt(drx*drx + dry*dry + drz*drz);
+		f   = -k_stretch * (dr - stretch[i].length);
+		fx  = f * drx / dr;
+		fy  = f * dry / dr;
+		fz  = f * drz / dr;
+		// cout << "dr: " << dr << ' ';
+		// cout << "f: " << f << ' ';
+		// cout << '\n';
+		vx[n1] += dt * fx / mass[n1];
+		vy[n1] += dt * fy / mass[n1];
+		vz[n1] += dt * fz / mass[n1];
+		vx[n2] -= dt * fx / mass[n2];
+		vy[n2] -= dt * fy / mass[n2];
+		vz[n2] -= dt * fz / mass[n2];
 	}
 }
 
@@ -68,7 +91,7 @@ void MdSystem::setContact(int i, int n1, int n2, float distance) {
 }
 void MdSystem::setIniVelo(float tempk) {
 	float coef;
-	for (int i=0; i<vx.size(); i++) {
+	for (int i=1; i<=maxMdIndex; i++) {
 		coef = sqrt(tempk * BOLTZMANN / mass[i]);
 		vx[i] = coef * gaussian(unirandom); 
 		vy[i] = coef * gaussian(unirandom); 
@@ -78,7 +101,7 @@ void MdSystem::setIniVelo(float tempk) {
 
 void MdSystem::step() {
 	// apply velocity to position 
-	for (int i=0; i<natoms; i++) {
+	for (int i=1; i<=maxMdIndex; i++) {
 		rx[i] += vx[i] * dt;
 		ry[i] += vy[i] * dt;
 		rz[i] += vz[i] * dt;
@@ -88,9 +111,7 @@ void MdSystem::step() {
 	applyStretches();
 
 	// (debug) show state
-	using namespace std;
-	cout << setw(12) << mdIndex[0] << ' ';
-	cout << "rx=" << setw(12) << rx[0] << ' ';
-	cout << "vx=" << setw(12) << vx[0] << ' ';
+	cout << setw(12) << rx[1] << ' ';
+	cout << setw(12) << vx[1] << ' ';
 	cout << '\n';
 }

@@ -40,17 +40,20 @@ int main(int argc, char *argv[]) {
 
 	// read atom coordinate
 	atomFile.seekg(0, std::ios_base::beg);
-	int iatoms=0;
+	int iatoms=1;
 	int mdIndex;
 	float x,y,z;
 	while (std::getline(atomFile, bufferLine)) {;
 		record = util::removeSpaces(bufferLine.substr(0,8));
 		if (record == "ATOM") {
 			mdIndex = stoi(bufferLine.substr(8,8));
+			if (mdIndex != iatoms) {
+				throw "mdIndex is not sequenced";
+			}
 			x = stof(bufferLine.substr(16,8));
 			y = stof(bufferLine.substr(24,8));
 			z = stof(bufferLine.substr(32,8));
-			md.setAtom(iatoms, mdIndex, x, y, z);
+			md.setAtom(mdIndex, x, y, z);
 			iatoms++;
 		}
 	}
@@ -116,7 +119,7 @@ int main(int argc, char *argv[]) {
 	forceFile.close();
 
 	md.setIniVelo(300);
-	for (int i=0; i<100; i++){
+	for (int t=0; t<10000; t++){
 		md.step();
 	}
 }
