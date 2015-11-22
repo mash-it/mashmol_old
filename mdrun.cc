@@ -1,117 +1,16 @@
 #include <iostream>
 #include <fstream>
+#include <random>
+
+std::mt19937 unirandom;
+std::normal_distribution<> gaussian;
 
 #include "util.h"
 #include "constants.h"
-#include "random.h"
-
-using namespace std;
-
-class Stretch
-{
-public:
-	int n1, n2;
-	float length; // bond length
-};
-
-class Bend
-{
-public:
-	int n1, n2, n3;
-	float angle; // bond angle
-};
-
-class Dihedral
-{
-public:
-	int n1, n2, n3, n4;
-	float dangle; // dihedral angle
-};
-
-class Contact
-{
-public:
-	int n1, n2;
-	float distance;
-};
-
-class MdSystem
-{
-	// position of particles
-	vector<float> rx;
-	vector<float> ry;
-	vector<float> rz;
-	vector<float> vx;
-	vector<float> vy;
-	vector<float> vz;
-	vector<float> mass;
-	vector<Stretch> stretch;
-	vector<Bend> bend;
-	vector<Dihedral> dihedral;
-	vector<Contact> contact;
-
-public:
-	MdSystem() {}
-	void setNAtoms(int natoms) {
-		rx.resize(natoms);
-		ry.resize(natoms);
-		rz.resize(natoms);
-		vx.resize(natoms);
-		vy.resize(natoms);
-		vz.resize(natoms);
-		mass.resize(natoms);
-		for (int i=0; i<natoms; i++) {
-			mass[i] = 1;
-		}
-	}
-	void setNForces(int s, int a, int d, int c) {
-		stretch.resize(s);
-		bend.resize(a);
-		dihedral.resize(d);
-		contact.resize(c);
-	}
-	void setCoord(int i, float x, float y, float z) {
-		rx[i] = x;
-		ry[i] = y;
-		rz[i] = z;
-	}
-	void setStretches(int i, int n1, int n2, float length) {
-		stretch[i].n1 = n1;
-		stretch[i].n2 = n2;
-		stretch[i].length = length;
-	}
-	void setBends(int i, int n1, int n2, int n3, float angle) {
-		bend[i].n1 = n1;
-		bend[i].n2 = n2;
-		bend[i].n3 = n3;
-		bend[i].angle = angle;
-	}
-	void setDiheds(int i, int n1, int n2, int n3, int n4, float d) {
-		dihedral[i].n1 = n1;
-		dihedral[i].n2 = n2;
-		dihedral[i].n3 = n3;
-		dihedral[i].n4 = n4;
-		dihedral[i].dangle = d;
-	}
-	void setContacts(int i, int n1, int n2, float distance) {
-		contact[i].n1 = n1;
-		contact[i].n2 = n2;
-		contact[i].distance = distance;
-	}
-	void setIniVelo(float tempk) {
-		float coef;
-		for (int i=0; i<vx.size(); i++) {
-			coef = sqrt(tempk * BOLTZMANN / mass[i]);
-			vx[i] = coef * gaussian(mt); 
-			vy[i] = coef * gaussian(mt); 
-			vz[i] = coef * gaussian(mt); 
-			cout << vx[i] << " " << vy[i] << " " << vz[i] << endl;
-		}
-	}
-};
+#include "MdSystem.h"
 
 int main(int argc, char *argv[]) {
-	mt.seed(1);
+	unirandom.seed(1);
 	std::string atomPath = "atom.dat";
 	std::string forcePath = "force.dat";
 	std::string confPath = "conf.dat";
@@ -139,7 +38,7 @@ int main(int argc, char *argv[]) {
 	md.setNAtoms(natoms);
 
 	// read atom coordinate
-	atomFile.seekg(0, ios_base::beg);
+	atomFile.seekg(0, std::ios_base::beg);
 	int iatoms=0;
 	float x,y,z;
 	while (std::getline(atomFile, bufferLine)) {;
@@ -166,10 +65,10 @@ int main(int argc, char *argv[]) {
 		if (record == "CONTACT") nconts++;
 	}
 	md.setNForces(nstretchs, nbends, ndiheds, nconts);
-	cout << nstretchs << " " << nbends << " " << ndiheds << " " << nconts << endl;
+	std::cout << nstretchs << " " << nbends << " " << ndiheds << " " << nconts << std::endl;
 	forceFile.clear();
 
-	forceFile.seekg(0, ios_base::beg);
+	forceFile.seekg(0, std::ios_base::beg);
 	int istretchs=0, ibends=0, idiheds=0, iconts=0;
 	int n1, n2, n3, n4;
 	float val;
@@ -210,7 +109,7 @@ int main(int argc, char *argv[]) {
 		}
 	} // while
 
-	cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << endl;
+	std::cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << std::endl;
 	forceFile.close();
 
 	md.setIniVelo(300);
