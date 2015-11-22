@@ -41,14 +41,16 @@ int main(int argc, char *argv[]) {
 	// read atom coordinate
 	atomFile.seekg(0, std::ios_base::beg);
 	int iatoms=0;
+	int mdIndex;
 	float x,y,z;
 	while (std::getline(atomFile, bufferLine)) {;
 		record = util::removeSpaces(bufferLine.substr(0,8));
 		if (record == "ATOM") {
-			x = stof(bufferLine.substr( 8,8));
-			y = stof(bufferLine.substr(16,8));
-			z = stof(bufferLine.substr(24,8));
-			md.setCoord(iatoms,x,y,z);
+			mdIndex = stoi(bufferLine.substr(8,8));
+			x = stof(bufferLine.substr(16,8));
+			y = stof(bufferLine.substr(24,8));
+			z = stof(bufferLine.substr(32,8));
+			md.setAtom(iatoms, mdIndex, x, y, z);
 			iatoms++;
 		}
 	}
@@ -80,7 +82,7 @@ int main(int argc, char *argv[]) {
 			n1 = stoi(bufferLine.substr( 8,8));
 			n2 = stoi(bufferLine.substr(16,8));
 			val= stof(bufferLine.substr(24,8));
-			md.setStretches(istretchs, n1, n2, val);
+			md.setStretch(istretchs, n1, n2, val);
 			istretchs++;
 		}
 		if (record == "BEND") {
@@ -88,7 +90,7 @@ int main(int argc, char *argv[]) {
 			n2 = stoi(bufferLine.substr(16,8));
 			n3 = stoi(bufferLine.substr(24,8));
 			val= stof(bufferLine.substr(32,8));
-			md.setBends(ibends, n1, n2, n3, val);
+			md.setBend(ibends, n1, n2, n3, val);
 			ibends++;
 		}
 		if (record == "DIHED") {
@@ -98,14 +100,14 @@ int main(int argc, char *argv[]) {
 			n3 = stoi(bufferLine.substr(24,8));
 			n4 = stoi(bufferLine.substr(32,8));
 			val= stof(bufferLine.substr(40,8));
-			md.setDiheds(idiheds, n1, n2, n3, n4, val);
+			md.setDihed(idiheds, n1, n2, n3, n4, val);
 			idiheds++;
 		}
 		if (record == "CONTACT") {
 			n1 = stoi(bufferLine.substr( 8,8));
 			n2 = stoi(bufferLine.substr(16,8));
 			val= stof(bufferLine.substr(24,8));
-			md.setContacts(iconts, n1, n2, val);
+			md.setContact(iconts, n1, n2, val);
 			iconts++;
 		}
 	} // while

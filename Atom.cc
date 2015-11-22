@@ -43,6 +43,16 @@ int Atom::getResSeq() {
 std::string Atom::getName() {
 	return name;
 }
+std::string Atom::getResName() {
+	return resName;
+}
+
+
+float Atom::getCoord(int xyz) {
+	if (xyz == 0) return r.x;
+	if (xyz == 1) return r.y;
+	if (xyz == 2) return r.z;
+}
 
 std::string Atom::write() {
 	std::stringstream ss;

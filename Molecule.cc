@@ -17,12 +17,28 @@ void Molecule::add(Atom atom) {
 	back().add(atom);
 }
 
+std::string Molecule::writeAtoms() {
+	std::stringstream ss;
+	for(int i=0; i<size(); i++) {
+		Atom atom = at(i).getCA();
+		ss << std::setw(8) << "ATOM";
+		ss << std::setw(8) << atom.mdIndex;
+		ss << std::setw(8) << atom.getCoord(0);
+		ss << std::setw(8) << atom.getCoord(1);
+		ss << std::setw(8) << atom.getCoord(2);
+		ss << " # " << std::setw(4) << atom.getResSeq();
+		ss << " " << atom.getResName();
+		ss << '\n';
+	}
+	return ss.str();
+}
+
 std::string Molecule::writeStretches() {
 	std::stringstream ss;
 	for(int i=0; i<size()-1; i++) {
 		ss << std::setw(7) << "STRETCH" << ' ';
-		ss << std::setw(7) << at(i).getSeq() << ' ';
-		ss << std::setw(7) << at(i+1).getSeq() << ' ';
+		ss << std::setw(7) << at(i).getCA().mdIndex << ' ';
+		ss << std::setw(7) << at(i+1).getCA().mdIndex << ' ';
 		ss << std::setw(8) << at(i).getCA().distance(at(i+1).getCA()) << '\n';
 	}
 	return ss.str();
@@ -31,9 +47,9 @@ std::string Molecule::writeBends() {
 	std::stringstream ss;
 	for(int i=0; i<size()-2; i++) {
 		ss << std::setw(7) << "BEND" << ' ';
-		ss << std::setw(7) << at(i).getSeq() << ' ';
-		ss << std::setw(7) << at(i+1).getSeq() << ' ';
-		ss << std::setw(7) << at(i+2).getSeq() << ' ';
+		ss << std::setw(7) << at(i).getCA().mdIndex << ' ';
+		ss << std::setw(7) << at(i+1).getCA().mdIndex << ' ';
+		ss << std::setw(7) << at(i+2).getCA().mdIndex << ' ';
 		ss << std::setw(8) << Atom::angle(at(i).getCA(), at(i+1).getCA(), at(i+2).getCA()) << '\n';
 	}
 	return ss.str();
@@ -42,10 +58,10 @@ std::string Molecule::writeDihedral() {
 	std::stringstream ss;
 	for(int i=0; i<size()-3; i++) {
 		ss << std::setw(7) << "DIHED" << ' ';
-		ss << std::setw(7) << at(i).getSeq() << ' ';
-		ss << std::setw(7) << at(i+1).getSeq() << ' ';
-		ss << std::setw(7) << at(i+2).getSeq() << ' ';
-		ss << std::setw(7) << at(i+3).getSeq() << ' ';
+		ss << std::setw(7) << at(i).getCA().mdIndex << ' ';
+		ss << std::setw(7) << at(i+1).getCA().mdIndex << ' ';
+		ss << std::setw(7) << at(i+2).getCA().mdIndex << ' ';
+		ss << std::setw(7) << at(i+3).getCA().mdIndex << ' ';
 		ss << std::setw(8) << Atom::dihedral(at(i).getCA(), at(i+1).getCA(), at(i+2).getCA(), at(i+3).getCA()) << '\n';
 	}
 	return ss.str();
@@ -57,8 +73,8 @@ std::string Molecule::writeNatCont(float dfcontact) {
 		float dist = at(i).distance(at(j));
 		if (dist < dfcontact) {
 			ss << std::setw(7) << "CONTACT" << ' ';
-			ss << std::setw(7) << at(i).getSeq() << ' ';
-			ss << std::setw(7) << at(j).getSeq() << ' ';
+			ss << std::setw(7) << at(i).getCA().mdIndex << ' ';
+			ss << std::setw(7) << at(j).getCA().mdIndex << ' ';
 			ss << std::setw(8) << dist << '\n';
 		}
 	}}

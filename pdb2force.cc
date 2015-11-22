@@ -33,9 +33,14 @@ int main(int argc, char *argv[]) {
 	std::string line;
 
 	Molecule mol;
+	int imd=1; // index for md
 	while ( getline(fin, line) ) {
 		if (line.substr(0,4).compare("ATOM") == 0) {
 			Atom atom(line);
+			if (atom.getName() == "CA") {
+ 				atom.mdIndex = imd;
+				imd++;
+			}
 			mol.add(atom);
 		}
 	}
@@ -46,9 +51,7 @@ int main(int argc, char *argv[]) {
 	std::ofstream afout(atomfile.c_str());
 	
 	afout << "# structure" << '\n';
-	for (int i=0; i<mol.size(); i++) {
-		afout << mol.at(i).getCA().write();
-	}
+	afout << mol.writeAtoms();
 	afout.close();
 	
 	// write force file

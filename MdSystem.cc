@@ -13,6 +13,7 @@ MdSystem::MdSystem() {
 
 void MdSystem::setNAtoms(int n) {
 	natoms = n;
+	mdIndex.resize(n);
 	rx.resize(n);
 	ry.resize(n);
 	rz.resize(n);
@@ -30,12 +31,13 @@ void MdSystem::setNForces(int s, int a, int d, int c) {
 	dihedral.resize(d);
 	contact.resize(c);
 }
-void MdSystem::setCoord(int i, float x, float y, float z) {
+void MdSystem::setAtom(int i, int mdi, float x, float y, float z) {
+	mdIndex[i] = mdi;
 	rx[i] = x;
 	ry[i] = y;
 	rz[i] = z;
 }
-void MdSystem::setStretches(int i, int n1, int n2, float length) {
+void MdSystem::setStretch(int i, int n1, int n2, float length) {
 	stretch[i].n1 = n1;
 	stretch[i].n2 = n2;
 	stretch[i].length = length;
@@ -46,20 +48,20 @@ void MdSystem::applyStretches() {
 	}
 }
 
-void MdSystem::setBends(int i, int n1, int n2, int n3, float angle) {
+void MdSystem::setBend(int i, int n1, int n2, int n3, float angle) {
 	bend[i].n1 = n1;
 	bend[i].n2 = n2;
 	bend[i].n3 = n3;
 	bend[i].angle = angle;
 }
-void MdSystem::setDiheds(int i, int n1, int n2, int n3, int n4, float d) {
+void MdSystem::setDihed(int i, int n1, int n2, int n3, int n4, float d) {
 	dihedral[i].n1 = n1;
 	dihedral[i].n2 = n2;
 	dihedral[i].n3 = n3;
 	dihedral[i].n4 = n4;
 	dihedral[i].dangle = d;
 }
-void MdSystem::setContacts(int i, int n1, int n2, float distance) {
+void MdSystem::setContact(int i, int n1, int n2, float distance) {
 	contact[i].n1 = n1;
 	contact[i].n2 = n2;
 	contact[i].distance = distance;
@@ -87,7 +89,8 @@ void MdSystem::step() {
 
 	// (debug) show state
 	using namespace std;
-	cout << "rx[0]=" << setw(12) << rx[0] << ' ';
-	cout << "vx[0]=" << setw(12) << vx[0] << ' ';
+	cout << setw(12) << mdIndex[0] << ' ';
+	cout << "rx=" << setw(12) << rx[0] << ' ';
+	cout << "vx=" << setw(12) << vx[0] << ' ';
 	cout << '\n';
 }

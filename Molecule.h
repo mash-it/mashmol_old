@@ -9,6 +9,7 @@ class Molecule: public std::vector<Residue> {
 public:
 	void add(Residue res);
 	void add(Atom atom);
+	std::string writeAtoms();
 	std::string writeStretches();
 	std::string writeBends();
 	std::string writeDihedral();
