@@ -114,4 +114,7 @@ int main(int argc, char *argv[]) {
 	forceFile.close();
 
 	md.setIniVelo(300);
+	for (int i=0; i<100; i++){
+		md.step();
+	}
 }
