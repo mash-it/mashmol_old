@@ -1,13 +1,14 @@
 #include <iostream>
 #include <fstream>
-#include <random>
-
-std::mt19937 unirandom;
-std::normal_distribution<> gaussian;
-
 #include "util.h"
 #include "constants.h"
 #include "MdSystem.h"
+
+// set global random generator
+#include <random>
+std::mt19937 unirandom;
+std::normal_distribution<> gaussian;
+
 
 int main(int argc, char *argv[]) {
 	unirandom.seed(1);
@@ -113,5 +114,4 @@ int main(int argc, char *argv[]) {
 	forceFile.close();
 
 	md.setIniVelo(300);
-
 }

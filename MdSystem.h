@@ -2,30 +2,26 @@
 #include "constants.h"
 #include "random.h"
 
-class Stretch
+struct Stretch
 {
-public:
 	int n1, n2;
 	float length; // bond length
 };
 
-class Bend
+struct Bend
 {
-public:
 	int n1, n2, n3;
 	float angle; // bond angle
 };
 
-class Dihedral
+struct Dihedral
 {
-public:
 	int n1, n2, n3, n4;
 	float dangle; // dihedral angle
 };
 
-class Contact
+struct Contact
 {
-public:
 	int n1, n2;
 	float distance;
 };
