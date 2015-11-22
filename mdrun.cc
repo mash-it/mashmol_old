@@ -2,6 +2,8 @@
 #include <fstream>
 
 #include "util.h"
+#include "constants.h"
+#include "random.h"
 
 using namespace std;
 
@@ -42,6 +44,7 @@ class MdSystem
 	vector<float> vx;
 	vector<float> vy;
 	vector<float> vz;
+	vector<float> mass;
 	vector<Stretch> stretch;
 	vector<Bend> bend;
 	vector<Dihedral> dihedral;
@@ -56,6 +59,10 @@ public:
 		vx.resize(natoms);
 		vy.resize(natoms);
 		vz.resize(natoms);
+		mass.resize(natoms);
+		for (int i=0; i<natoms; i++) {
+			mass[i] = 1;
+		}
 	}
 	void setNForces(int s, int a, int d, int c) {
 		stretch.resize(s);
@@ -91,9 +98,20 @@ public:
 		contact[i].n2 = n2;
 		contact[i].distance = distance;
 	}
+	void setIniVelo(float tempk) {
+		float coef;
+		for (int i=0; i<vx.size(); i++) {
+			coef = sqrt(tempk * BOLTZMANN / mass[i]);
+			vx[i] = coef * gaussian(mt); 
+			vy[i] = coef * gaussian(mt); 
+			vz[i] = coef * gaussian(mt); 
+			cout << vx[i] << " " << vy[i] << " " << vz[i] << endl;
+		}
+	}
 };
 
 int main(int argc, char *argv[]) {
+	mt.seed(1);
 	std::string atomPath = "atom.dat";
 	std::string forcePath = "force.dat";
 	std::string confPath = "conf.dat";
@@ -101,102 +119,100 @@ int main(int argc, char *argv[]) {
 	MdSystem md;
 
 	// read atom file
+	std::ifstream atomFile(atomPath.c_str());
+	if (atomFile.fail())
 	{
-		std::ifstream atomFile(atomPath.c_str());
-		if (atomFile.fail())
-		{
-			std::cerr << "failed to open " << atomPath << std::endl;
-			return 1;
-		}
-	
-		// read number of atoms
-		int natoms = 0;
-		while (std::getline(atomFile, bufferLine)) {
-			record = util::removeSpaces(bufferLine.substr(0,8));
-			if (record == "ATOM") {
-				natoms++;
-			}
-		}
-		atomFile.clear();
-	
-		md.setNAtoms(natoms);
-	
-		// read atom coordinate
-		atomFile.seekg(0, ios_base::beg);
-		int i=0;
-		float x,y,z;
-		while (std::getline(atomFile, bufferLine)) {;
-			record = util::removeSpaces(bufferLine.substr(0,8));
-			if (record == "ATOM") {
-				x = stof(bufferLine.substr( 8,8));
-				y = stof(bufferLine.substr(16,8));
-				z = stof(bufferLine.substr(24,8));
-				md.setCoord(i,x,y,z);
-				i++;
-			}
-		}
-		atomFile.close();
+		std::cerr << "failed to open " << atomPath << std::endl;
+		return 1;
 	}
+
+	// read number of atoms
+	int natoms = 0;
+	while (std::getline(atomFile, bufferLine)) {
+		record = util::removeSpaces(bufferLine.substr(0,8));
+		if (record == "ATOM") {
+			natoms++;
+		}
+	}
+	atomFile.clear();
+
+	md.setNAtoms(natoms);
+
+	// read atom coordinate
+	atomFile.seekg(0, ios_base::beg);
+	int iatoms=0;
+	float x,y,z;
+	while (std::getline(atomFile, bufferLine)) {;
+		record = util::removeSpaces(bufferLine.substr(0,8));
+		if (record == "ATOM") {
+			x = stof(bufferLine.substr( 8,8));
+			y = stof(bufferLine.substr(16,8));
+			z = stof(bufferLine.substr(24,8));
+			md.setCoord(iatoms,x,y,z);
+			iatoms++;
+		}
+	}
+	atomFile.close();
 
 	// read force file
-	{
-		std::ifstream forceFile(forcePath.c_str());
+	std::ifstream forceFile(forcePath.c_str());
 
-		int nstretchs=0, nbends=0, ndiheds=0, nconts=0;
-		while (std::getline(forceFile, bufferLine)) {
-			record = util::removeSpaces(bufferLine.substr(0,8));
-			if (record == "STRETCH") nstretchs++;
-			if (record == "BEND") nbends++;
-			if (record == "DIHED") ndiheds++;
-			if (record == "CONTACT") nconts++;
-		}
-		md.setNForces(nstretchs, nbends, ndiheds, nconts);
-		cout << nstretchs << " " << nbends << " " << ndiheds << " " << nconts << endl;
-		forceFile.clear();
-
-		forceFile.seekg(0, ios_base::beg);
-		int istretchs=0, ibends=0, idiheds=0, iconts=0;
-		int n1, n2, n3, n4;
-		float val;
-
-		while (std::getline(forceFile, bufferLine)) {;
-			record = util::removeSpaces(bufferLine.substr(0,8));
-			if (record == "STRETCH") {
-				n1 = stoi(bufferLine.substr( 8,8));
-				n2 = stoi(bufferLine.substr(16,8));
-				val= stof(bufferLine.substr(24,8));
-				md.setStretches(istretchs, n1, n2, val);
-				istretchs++;
-			}
-			if (record == "BEND") {
-				n1 = stoi(bufferLine.substr( 8,8));
-				n2 = stoi(bufferLine.substr(16,8));
-				n3 = stoi(bufferLine.substr(24,8));
-				val= stof(bufferLine.substr(32,8));
-				md.setBends(ibends, n1, n2, n3, val);
-				ibends++;
-			}
-			if (record == "DIHED") {
-				n1 = stoi(bufferLine.substr( 8,8));
-				n2 = stoi(bufferLine.substr(16,8));
-				n3 = stoi(bufferLine.substr(24,8));
-				n3 = stoi(bufferLine.substr(24,8));
-				n4 = stoi(bufferLine.substr(32,8));
-				val= stof(bufferLine.substr(40,8));
-				md.setDiheds(idiheds, n1, n2, n3, n4, val);
-				idiheds++;
-			}
-			if (record == "CONTACT") {
-				n1 = stoi(bufferLine.substr( 8,8));
-				n2 = stoi(bufferLine.substr(16,8));
-				val= stof(bufferLine.substr(24,8));
-				md.setContacts(iconts, n1, n2, val);
-				iconts++;
-			}
-		}
-
-		cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << endl;
-
-		forceFile.close();
+	int nstretchs=0, nbends=0, ndiheds=0, nconts=0;
+	while (std::getline(forceFile, bufferLine)) {
+		record = util::removeSpaces(bufferLine.substr(0,8));
+		if (record == "STRETCH") nstretchs++;
+		if (record == "BEND") nbends++;
+		if (record == "DIHED") ndiheds++;
+		if (record == "CONTACT") nconts++;
 	}
+	md.setNForces(nstretchs, nbends, ndiheds, nconts);
+	cout << nstretchs << " " << nbends << " " << ndiheds << " " << nconts << endl;
+	forceFile.clear();
+
+	forceFile.seekg(0, ios_base::beg);
+	int istretchs=0, ibends=0, idiheds=0, iconts=0;
+	int n1, n2, n3, n4;
+	float val;
+
+	while (std::getline(forceFile, bufferLine)) {;
+		record = util::removeSpaces(bufferLine.substr(0,8));
+		if (record == "STRETCH") {
+			n1 = stoi(bufferLine.substr( 8,8));
+			n2 = stoi(bufferLine.substr(16,8));
+			val= stof(bufferLine.substr(24,8));
+			md.setStretches(istretchs, n1, n2, val);
+			istretchs++;
+		}
+		if (record == "BEND") {
+			n1 = stoi(bufferLine.substr( 8,8));
+			n2 = stoi(bufferLine.substr(16,8));
+			n3 = stoi(bufferLine.substr(24,8));
+			val= stof(bufferLine.substr(32,8));
+			md.setBends(ibends, n1, n2, n3, val);
+			ibends++;
+		}
+		if (record == "DIHED") {
+			n1 = stoi(bufferLine.substr( 8,8));
+			n2 = stoi(bufferLine.substr(16,8));
+			n3 = stoi(bufferLine.substr(24,8));
+			n3 = stoi(bufferLine.substr(24,8));
+			n4 = stoi(bufferLine.substr(32,8));
+			val= stof(bufferLine.substr(40,8));
+			md.setDiheds(idiheds, n1, n2, n3, n4, val);
+			idiheds++;
+		}
+		if (record == "CONTACT") {
+			n1 = stoi(bufferLine.substr( 8,8));
+			n2 = stoi(bufferLine.substr(16,8));
+			val= stof(bufferLine.substr(24,8));
+			md.setContacts(iconts, n1, n2, val);
+			iconts++;
+		}
+	} // while
+
+	cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << endl;
+	forceFile.close();
+
+	md.setIniVelo(300);
+
 }
