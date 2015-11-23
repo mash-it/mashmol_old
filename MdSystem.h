@@ -1,6 +1,7 @@
 #include <vector>
 #include "constants.h"
 #include "random.h"
+#include "DcdFile.h"
 
 struct Stretch
 {
@@ -53,6 +54,8 @@ class MdSystem
 	float k_dihed1; // ... for bending
 	float k_dihed3; // ... for bending
 
+	DcdFile dcd;
+
 public:
 	MdSystem();
 	void setNAtoms(int natoms);
@@ -63,10 +66,11 @@ public:
 	void setDihed(int i, int n1, int n2, int n3, int n4, float d);
 	void setContact(int i, int n1, int n2, float distance);
 	void setIniVelo(float tempk);
-
+	
 	void step();
-
 	void applyStretches();
+
+	void openDcd(std::string filename);
 };
 
 

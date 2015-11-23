@@ -26,6 +26,7 @@ void MdSystem::setNAtoms(int n) {
 	for (int i=0; i<n; i++) {
 		mass[i] = 1;
 	}
+	dcd.setNAtoms(n-1);
 }
 void MdSystem::setNForces(int s, int a, int d, int c) {
 	stretch.resize(s);
@@ -59,9 +60,6 @@ void MdSystem::applyStretches() {
 		fx  = f * drx / dr;
 		fy  = f * dry / dr;
 		fz  = f * drz / dr;
-		// cout << "dr: " << dr << ' ';
-		// cout << "f: " << f << ' ';
-		// cout << '\n';
 		vx[n1] += dt * fx / mass[n1];
 		vy[n1] += dt * fy / mass[n1];
 		vz[n1] += dt * fz / mass[n1];
@@ -114,4 +112,12 @@ void MdSystem::step() {
 	cout << setw(12) << rx[1] << ' ';
 	cout << setw(12) << vx[1] << ' ';
 	cout << '\n';
+
+	dcd.writeFrame(rx, ry, rz);
 }
+
+void MdSystem::openDcd(std::string filename) {
+	dcd.open(filename);
+	dcd.setNAtoms(maxMdIndex);
+}
+

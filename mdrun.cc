@@ -118,8 +118,10 @@ int main(int argc, char *argv[]) {
 	std::cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << std::endl;
 	forceFile.close();
 
+	md.openDcd("test.dcd");
+
 	md.setIniVelo(300);
-	for (int t=0; t<10000; t++){
+	for (int t=0; t<100; t++){
 		md.step();
 	}
 }

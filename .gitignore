@@ -1,4 +1,5 @@
 *.pdb
 *.dat
+*.dcd
 pdb2force
 mdrun
