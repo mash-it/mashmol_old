@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	std::string line;
 
 	Molecule mol;
-	int imd=1; // index for md
+	int imd=0; // index for md
 	while ( getline(fin, line) ) {
 		if (line.substr(0,4).compare("ATOM") == 0) {
 			Atom atom(line);

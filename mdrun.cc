@@ -34,13 +34,14 @@ int main(int argc, char *argv[]) {
 			natoms++;
 		}
 	}
+	std::cout << "ATOM : " << natoms << std::endl;
 	atomFile.clear();
 
 	md.setNAtoms(natoms);
 
 	// read atom coordinate
 	atomFile.seekg(0, std::ios_base::beg);
-	int iatoms=1;
+	int iatoms=0;
 	int mdIndex;
 	float x,y,z;
 	while (std::getline(atomFile, bufferLine)) {;
@@ -115,13 +116,19 @@ int main(int argc, char *argv[]) {
 		}
 	} // while
 
-	std::cout << istretchs << " " << ibends << " " << idiheds << " " << iconts << std::endl;
+	std::cout << "STRETCH: " << istretchs << ", ";
+	std::cout << "BEND: " << ibends << ", ";
+	std::cout << "DIHEDRAL: " << idiheds << ", ";
+	std::cout << "CONTACT: " << iconts << std::endl;
 	forceFile.close();
 
 	md.openDcd("test.dcd");
 
 	md.setIniVelo(300);
-	for (int t=0; t<100; t++){
+	for (int t=0; t<10000; t++){
 		md.step();
+		if (t % 100 == 0) {
+			md.writeDcdFrame();
+		}
 	}
 }

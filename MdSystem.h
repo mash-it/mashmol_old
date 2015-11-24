@@ -47,7 +47,7 @@ class MdSystem
 	std::vector<Contact> contact;
 
 	// system information
-	int maxMdIndex;
+	int natoms;
 	float dt;	// time step
 	float k_stretch; // spring constant for stretching
 	float k_bend; // ... for bending
@@ -71,6 +71,7 @@ public:
 	void applyStretches();
 
 	void openDcd(std::string filename);
+	void writeDcdFrame();
 };
 
 

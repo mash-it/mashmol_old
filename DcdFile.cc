@@ -1,3 +1,4 @@
+#include <iostream> // debug
 #include "DcdFile.h"
 
 DcdFile::DcdFile() {
@@ -57,26 +58,28 @@ void DcdFile::open(std::string filename) {
 
 
 }
-void DcdFile::setNAtoms(int n) { natoms = n; }
+void DcdFile::setNAtoms(int n) { 
+	natoms = n; 
+}
 
 void DcdFile::writeFrame(std::vector<float> rx, std::vector<float> ry, std::vector<float> rz) {
 
-	int blocksize = rx.size() * sizeof(float) - 4;
+	int blocksize = rx.size() * sizeof(float);
 
 	fout.write((char*)&blocksize, sizeof(int));
-	for(int i=1; i<rx.size(); i++) {
+	for(int i=0; i<rx.size(); i++) {
 		fout.write((char*)&rx[i], sizeof(float));
 	}
 	fout.write((char*)&blocksize, sizeof(int));
 
 	fout.write((char*)&blocksize, sizeof(int));
-	for(int i=1; i<rx.size(); i++) {
+	for(int i=0; i<rx.size(); i++) {
 		fout.write((char*)&ry[i], sizeof(float));
 	}
 	fout.write((char*)&blocksize, sizeof(int));
 
 	fout.write((char*)&blocksize, sizeof(int));
-	for(int i=1; i<rx.size(); i++) {
+	for(int i=0; i<rx.size(); i++) {
 		fout.write((char*)&rz[i], sizeof(float));
 	}
 	fout.write((char*)&blocksize, sizeof(int));

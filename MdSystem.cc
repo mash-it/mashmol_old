@@ -14,8 +14,7 @@ MdSystem::MdSystem() {
 }
 
 void MdSystem::setNAtoms(int n) {
-	maxMdIndex = n; // max value of mdIndex
-	n++; // avoid 0-th atom
+	natoms = n; // max value of mdIndex
 	rx.resize(n);
 	ry.resize(n);
 	rz.resize(n);
@@ -26,7 +25,7 @@ void MdSystem::setNAtoms(int n) {
 	for (int i=0; i<n; i++) {
 		mass[i] = 1;
 	}
-	dcd.setNAtoms(n-1);
+	dcd.setNAtoms(n);
 }
 void MdSystem::setNForces(int s, int a, int d, int c) {
 	stretch.resize(s);
@@ -89,7 +88,7 @@ void MdSystem::setContact(int i, int n1, int n2, float distance) {
 }
 void MdSystem::setIniVelo(float tempk) {
 	float coef;
-	for (int i=1; i<=maxMdIndex; i++) {
+	for (int i=0; i<=natoms; i++) {
 		coef = sqrt(tempk * BOLTZMANN / mass[i]);
 		vx[i] = coef * gaussian(unirandom); 
 		vy[i] = coef * gaussian(unirandom); 
@@ -99,7 +98,7 @@ void MdSystem::setIniVelo(float tempk) {
 
 void MdSystem::step() {
 	// apply velocity to position 
-	for (int i=1; i<=maxMdIndex; i++) {
+	for (int i=0; i<=natoms; i++) {
 		rx[i] += vx[i] * dt;
 		ry[i] += vy[i] * dt;
 		rz[i] += vz[i] * dt;
@@ -108,16 +107,13 @@ void MdSystem::step() {
 	// apply force to velocity
 	applyStretches();
 
-	// (debug) show state
-	cout << setw(12) << rx[1] << ' ';
-	cout << setw(12) << vx[1] << ' ';
-	cout << '\n';
-
-	dcd.writeFrame(rx, ry, rz);
 }
 
 void MdSystem::openDcd(std::string filename) {
 	dcd.open(filename);
-	dcd.setNAtoms(maxMdIndex);
+}
+
+void MdSystem::writeDcdFrame() {
+	dcd.writeFrame(rx, ry, rz);
 }
 
