@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 	unirandom.seed(1);
 	std::string atomPath = "atom.dat";
 	std::string forcePath = "force.dat";
-	std::string confPath = "conf.dat";
+	std::string protPath = "protocol.dat";
 	std::string bufferLine, record;
 	MdSystem md;
 
@@ -122,13 +122,34 @@ int main(int argc, char *argv[]) {
 	std::cout << "CONTACT: " << iconts << std::endl;
 	forceFile.close();
 
-	md.openDcd("test.dcd");
+	// read protocol while
+	int nstep, nstepSave;
+	std::ifstream protFile(protPath.c_str());
+	if (!protFile) {
+		std::cerr << "cannot open " << protPath << std::endl;
+		return 1;
+	}
+	while (std::getline(protFile, bufferLine)) {
+		record = util::removeSpaces(bufferLine.substr(0,8));
+		if (record == "NSTEP") nstep = stoi(bufferLine.substr(8,8));
+		if (record == "NSAVE") nstepSave = stoi(bufferLine.substr(8,8));
+	}
+
+	std::cout << "NSTEP: " << nstep << ", ";
+	std::cout << "NSAVE: " << nstepSave << '\n';
+
+	md.openDcd("test.dcd", nstep, nstepSave);
 
 	md.setIniVelo(300);
-	for (int t=0; t<10000; t++){
+
+	md.writeDcdFrame();
+	int nframes = 1;
+	for (int t=0; t<nstep; t++){
 		md.step();
-		if (t % 100 == 0) {
+		if (t % nstepSave == 0) {
 			md.writeDcdFrame();
+			nframes++;
 		}
 	}
+	std::cout << "nframes: " << nframes << std::endl;
 }

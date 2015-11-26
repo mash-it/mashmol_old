@@ -51,8 +51,8 @@ class MdSystem
 	float dt;	// time step
 	float k_stretch; // spring constant for stretching
 	float k_bend; // ... for bending
-	float k_dihed1; // ... for bending
-	float k_dihed3; // ... for bending
+	float k_dihed1; // ... for dihedral
+	float k_dihed3; // ... for dihedral
 
 	DcdFile dcd;
 
@@ -69,8 +69,9 @@ public:
 	
 	void step();
 	void applyStretches();
+	void applyBends();
 
-	void openDcd(std::string filename);
+	void openDcd(std::string filename, int nstep, int nstepSave);
 	void writeDcdFrame();
 };
 

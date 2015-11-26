@@ -2,10 +2,7 @@
 #include "DcdFile.h"
 
 DcdFile::DcdFile() {
-	nframes = 100;
 	istart = 0;
-	nstep_save = 1;
-	nsteps = nframes * nstep_save;
 	nunits = 1;
 	delta = 0.1;
 	dcdVersion = 24;
@@ -26,7 +23,7 @@ void DcdFile::open(std::string filename) {
 	fout.write("CORD", sizeof(char)*4);
 	fout.write((char*)&nframes, sizeof(int));
 	fout.write((char*)&istart, sizeof(int));
-	fout.write((char*)&nstep_save, sizeof(int));
+	fout.write((char*)&nstepSave, sizeof(int));
 	fout.write((char*)&nsteps, sizeof(int));
 	fout.write((char*)&nunits, sizeof(int));
 
@@ -60,6 +57,15 @@ void DcdFile::open(std::string filename) {
 }
 void DcdFile::setNAtoms(int n) { 
 	natoms = n; 
+}
+
+void DcdFile::setMeta(int ns, int nsS) {
+	nsteps = ns;
+	nstepSave = nsS;
+	nframes = nsteps / nstepSave + 1; // +1 is 0-th frame
+	std::cout << "nsteps: " << nsteps << '\n';
+	std::cout << "nstepsave: " << nstepSave << '\n';
+	std::cout << "nframes: " << nframes << '\n';
 }
 
 void DcdFile::writeFrame(std::vector<float> rx, std::vector<float> ry, std::vector<float> rz) {
