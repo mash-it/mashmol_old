@@ -144,9 +144,10 @@ int main(int argc, char *argv[]) {
 	std::cout << "CONTACT: " << iconts << std::endl;
 	forceFile.close();
 
-	md.openDcd("test.dcd", nstep, nstepSave);
+	md.openDcd("output.dcd", nstep, nstepSave);
 
-	md.setIniVelo(300);
+	float tempk = 300;
+	md.setIniVelo(tempk);
 
 	md.writeDcdFrame();
 	int nframes = 1;

@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from CafeMolAnalysis import DcdFile
 
-dcd = DcdFile("test.dcd")
+dcd = DcdFile("output.dcd")
 
 i = 0
 j = i+1

@@ -172,6 +172,20 @@ void MdSystem::step() {
 	// apply force to velocity
 	applyStretches();
 	applyBends();
+
+	// set center of mass position to zero
+	float cmx = 0;
+	float cmy = 0;
+	float cmz = 0;
+	for (int i=0; i<natoms; i++) {
+		cmx += rx[i]; cmy += ry[i]; cmz += rz[i];
+	}
+	cmx /= natoms; cmy /= natoms; cmz /= natoms;
+
+	for (int i=0; i<natoms; i++) {
+		rx[i] -= cmx; ry[i] -= cmy; rz[i] -= cmz;
+	}
+
 }
 
 void MdSystem::openDcd(std::string filename, int nstep, int nstepSave) {
