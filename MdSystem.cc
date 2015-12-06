@@ -101,7 +101,7 @@ void MdSystem::applyBends() {
 		drij2 = drijx*drijx + drijy*drijy + drijz*drijz;
 		drkj2 = drkjx*drkjx + drkjy*drkjy + drkjz*drkjz;
 
-		S = drijx*drkjx + drijy*drkjy + drijz+drkjz;
+		S = drijx*drkjx + drijy*drkjy + drijz*drkjz;
 		D2 = drij2 * drkj2;
 		D = sqrt(D2);
 
@@ -145,11 +145,13 @@ void MdSystem::setDihed(int i, int n1, int n2, int n3, int n4, float d) {
 	dihedral[i].n4 = n4;
 	dihedral[i].dangle = d;
 }
+
 void MdSystem::setContact(int i, int n1, int n2, float distance) {
 	contact[i].n1 = n1;
 	contact[i].n2 = n2;
 	contact[i].distance = distance;
 }
+
 void MdSystem::setIniVelo(float tempk) {
 	float coef;
 	for (int i=0; i<=natoms; i++) {
