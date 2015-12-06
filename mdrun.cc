@@ -11,36 +11,40 @@ std::normal_distribution<> gaussian;
 
 
 int main(int argc, char *argv[]) {
+	std::string protPath = "protocol.dat";
 	std::string atomPath = "atom.dat";
 	std::string forcePath = "force.dat";
-	std::string protPath = "protocol.dat";
 	std::string bufferLine, record;
 	MdSystem md;
 
 	// read protocol while
-	int nstep, nstepSave, nrandSeed;
 	std::ifstream protFile(protPath.c_str());
 	if (!protFile) {
-		std::cerr << "cannot open " << protPath << std::endl;
+		std::cerr << "ERROR: cannot open " << protPath << std::endl;
 		return 1;
 	}
-	while (std::getline(protFile, bufferLine)) {
-		record = util::removeSpaces(bufferLine.substr(0,8));
-		if (record == "NSTEP") nstep = stoi(bufferLine.substr(8,8));
-		if (record == "NSAVE") nstepSave = stoi(bufferLine.substr(8,8));
-		if (record == "RANDSEED") nrandSeed = stoi(bufferLine.substr(8,8));
+	int nstep, nstepSave, nrandSeed;
+	std::string key, value;
+	while (protFile >> key >> value) {
+		if (key == "NSTEP") nstep = stoi(value);
+		if (key == "NSAVE") nstepSave = stoi(value);
+		if (key == "RANDSEED") nrandSeed = stoi(value);
+		if (key == "ATOMFILE") atomPath = value;
+		if (key == "FORCEFILE") forcePath = value;
 	}
 	unirandom.seed(nrandSeed);
 
 	std::cout << "NSTEP: " << nstep << ", ";
-	std::cout << "NSAVE: " << nstepSave << '\n';
-
+	std::cout << "NSAVE: " << nstepSave << ", ";
+	std::cout << "RANDSEED: " << nstepSave << '\n';
+	std::cout << "ATOMFILE: " << atomPath << ", ";
+	std::cout << "FORCEFILE: " << forcePath << '\n';
 
 	// read atom file
 	std::ifstream atomFile(atomPath.c_str());
 	if (atomFile.fail())
 	{
-		std::cerr << "failed to open " << atomPath << std::endl;
+		std::cerr << "ERROR: failed to open " << atomPath << std::endl;
 		return 1;
 	}
 
