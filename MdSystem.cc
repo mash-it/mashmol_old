@@ -9,7 +9,7 @@ using namespace std;
 MdSystem::MdSystem() {
 	dt = 0.001;
 	k_stretch = 100.0;
-	k_bend = 20.0;
+	k_bend = 1.0;
 	k_dihed1 = 1.0;
 	k_dihed3 = 0.5;
 }
@@ -83,54 +83,58 @@ void MdSystem::setBend(int i, int n1, int n2, int n3, float angle) {
 void MdSystem::applyBends() {
 	// "Numerical Simulation in Molecular Dynamics: Numerics, Algoriths, Parallelization, Applications"
 	// M Griebel, S Knapek, G Zumbusch, Springer 2007, TJ Barth et al, Springer, p188
+	int i, j, k; // index of three atoms for one angle. k=j+1=i+2
+	float theta, thetaNative; // (native) bond angle
+	float cosTheta, sinTheta;
+	float drijx, drijy, drijz, drkjx, drkjy, drkjz; // two bond vectors
+	float drij2, drkj2; // square of distance
+	float S, D, D2;
+	float force;
+	float force_ijx, force_ijy, force_ijz;
+	float force_kjx, force_kjy, force_kjz;
 
-	int n1, n2, n3; // mdIndex of atom
-	float ax, ay, az, bx, by, bz;  // bond vector (a: n2-n1, b: n2-n3)
-	float caa, cbb; // dot product of two vectors
-	float theta, natTheta, sinTheta, cosTheta; // sine and cosine of bond angle
-	float force_common; // common prefix
-	float force_ax, force_ay, force_az, force_bx, force_by, force_bz;
-	float D, D2; // sqrt(caa * cbb) and its square
-	float S; // dot product of a and b
+	for (int ibend=0; ibend<bend.size(); ibend++) {
+		i = bend[ibend].n1; j = bend[ibend].n2; k = bend[ibend].n3;
+		thetaNative = bend[ibend].angle * pi / 180;
+		drijx = rx[i]-rx[j]; drijy = ry[i]-ry[j]; drijz = rz[i]-rz[j];
+		drkjx = rx[k]-rx[j]; drkjy = ry[k]-ry[j]; drkjz = rz[k]-rz[j];
+		drij2 = drijx*drijx + drijy*drijy + drijz*drijz;
+		drkj2 = drkjx*drkjx + drkjy*drkjy + drkjz*drkjz;
 
-	for (int i=0; i<bend.size(); i++) {
-		n1 = bend[i].n1; n2 = bend[i].n2; n3 = bend[i].n3;
-		natTheta = bend[i].angle * pi / 180;
-
-		ax = rx[n2]-rx[n1]; ay = ry[n2]-ry[n1]; az = rz[n2]-rz[n1];
-		bx = rx[n2]-rx[n3]; by = ry[n2]-ry[n3]; bz = rz[n2]-rz[n3];
-		caa = ax*ax + ay*ay + az*az;
-		cbb = bx*bx + by*by + bz*bz;
-		S = ax*bx + ay*by + az*bz;
-		D2 = caa * cbb;
+		S = drijx*drkjx + drijy*drkjy + drijz+drkjz;
+		D2 = drij2 * drkj2;
 		D = sqrt(D2);
 
 		cosTheta = S/D;
-		theta = acos(cosTheta);
-		sinTheta = sqrt(1-cosTheta*cosTheta);
+		// avoid imaginary sinTheta
+		if (cosTheta > 1) cosTheta = 1;
+		if (cosTheta < -1) cosTheta = -1;
+
+		sinTheta = sqrt(1 - cosTheta*cosTheta);
 		if (sinTheta < 0.001) sinTheta = 0.001;
 
-		force_common = -k_bend * (theta - natTheta) / sinTheta;
-		force_common /= D;
+		theta = acos(cosTheta);
+		force = -k_bend * (theta - thetaNative) / (sinTheta * D);
 
-		force_ax = force_common*(bx-S/D2*ax*cbb);
-		force_ay = force_common*(by-S/D2*ay*cbb);
-		force_az = force_common*(bz-S/D2*az*cbb);
-		force_bx = force_common*(ax-S/D2*bx*caa);
-		force_by = force_common*(ay-S/D2*by*caa);
-		force_bz = force_common*(az-S/D2*bz*caa);
+		force_ijx = force * (drkjx - S/D2 * drijx * drkj2);
+		force_ijy = force * (drkjy - S/D2 * drijy * drkj2);
+		force_ijz = force * (drkjz - S/D2 * drijz * drkj2);
 
-		vx[n1] -= dt * force_ax / mass[n1];
-		vy[n1] -= dt * force_ay / mass[n1];
-		vz[n1] -= dt * force_az / mass[n1];
+		force_kjx = force * (drijx - S/D2 * drkjx * drij2);
+		force_kjy = force * (drijy - S/D2 * drkjy * drij2);
+		force_kjz = force * (drijz - S/D2 * drkjz * drij2);
 
-		vx[n1] += dt * (force_ax - force_bx) / mass[n1];
-		vy[n1] += dt * (force_ay - force_by) / mass[n1];
-		vz[n1] += dt * (force_az - force_bz) / mass[n1];
+		vx[i] -= dt * force_ijx / mass[i];
+		vy[i] -= dt * force_ijy / mass[i];
+		vz[i] -= dt * force_ijz / mass[i];
 
-		vx[n3] += dt * force_bx / mass[n3];
-		vy[n3] += dt * force_by / mass[n3];
-		vz[n3] += dt * force_bz / mass[n3];
+		vx[j] += dt * (force_ijx + force_kjx) / mass[j];
+		vy[j] += dt * (force_ijy + force_kjy) / mass[j];
+		vz[j] += dt * (force_ijz + force_kjz) / mass[j];
+
+		vx[k] -= dt * force_kjx / mass[k];
+		vy[k] -= dt * force_kjy / mass[k];
+		vz[k] -= dt * force_kjz / mass[k];
 	}
 }
 

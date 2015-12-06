@@ -11,12 +11,30 @@ std::normal_distribution<> gaussian;
 
 
 int main(int argc, char *argv[]) {
-	unirandom.seed(1);
 	std::string atomPath = "atom.dat";
 	std::string forcePath = "force.dat";
 	std::string protPath = "protocol.dat";
 	std::string bufferLine, record;
 	MdSystem md;
+
+	// read protocol while
+	int nstep, nstepSave, nrandSeed;
+	std::ifstream protFile(protPath.c_str());
+	if (!protFile) {
+		std::cerr << "cannot open " << protPath << std::endl;
+		return 1;
+	}
+	while (std::getline(protFile, bufferLine)) {
+		record = util::removeSpaces(bufferLine.substr(0,8));
+		if (record == "NSTEP") nstep = stoi(bufferLine.substr(8,8));
+		if (record == "NSAVE") nstepSave = stoi(bufferLine.substr(8,8));
+		if (record == "RANDSEED") nrandSeed = stoi(bufferLine.substr(8,8));
+	}
+	unirandom.seed(nrandSeed);
+
+	std::cout << "NSTEP: " << nstep << ", ";
+	std::cout << "NSAVE: " << nstepSave << '\n';
+
 
 	// read atom file
 	std::ifstream atomFile(atomPath.c_str());
@@ -121,22 +139,6 @@ int main(int argc, char *argv[]) {
 	std::cout << "DIHEDRAL: " << idiheds << ", ";
 	std::cout << "CONTACT: " << iconts << std::endl;
 	forceFile.close();
-
-	// read protocol while
-	int nstep, nstepSave;
-	std::ifstream protFile(protPath.c_str());
-	if (!protFile) {
-		std::cerr << "cannot open " << protPath << std::endl;
-		return 1;
-	}
-	while (std::getline(protFile, bufferLine)) {
-		record = util::removeSpaces(bufferLine.substr(0,8));
-		if (record == "NSTEP") nstep = stoi(bufferLine.substr(8,8));
-		if (record == "NSAVE") nstepSave = stoi(bufferLine.substr(8,8));
-	}
-
-	std::cout << "NSTEP: " << nstep << ", ";
-	std::cout << "NSAVE: " << nstepSave << '\n';
 
 	md.openDcd("test.dcd", nstep, nstepSave);
 
