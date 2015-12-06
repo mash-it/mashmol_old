@@ -145,6 +145,7 @@ int main(int argc, char *argv[]) {
 	forceFile.close();
 
 	md.openDcd("output.dcd", nstep, nstepSave);
+	md.setCenterZero();
 
 	float tempk = 300;
 	md.setIniVelo(tempk);

@@ -9,7 +9,7 @@ using namespace std;
 MdSystem::MdSystem() {
 	dt = 0.001;
 	k_stretch = 100.0;
-	k_bend = 1.0;
+	k_bend = 10.0;
 	k_dihed1 = 1.0;
 	k_dihed3 = 0.5;
 }
@@ -162,18 +162,7 @@ void MdSystem::setIniVelo(float tempk) {
 	}
 }
 
-void MdSystem::step() {
-	using namespace std;
-	// apply velocity to position 
-	for (int i=0; i<natoms; i++) {
-		rx[i] += vx[i] * dt;
-		ry[i] += vy[i] * dt;
-		rz[i] += vz[i] * dt;
-	}
-
-	// apply force to velocity
-	applyStretches();
-	applyBends();
+void MdSystem::setCenterZero() {
 
 	// set center of mass position to zero
 	float cmx = 0;
@@ -187,6 +176,23 @@ void MdSystem::step() {
 	for (int i=0; i<natoms; i++) {
 		rx[i] -= cmx; ry[i] -= cmy; rz[i] -= cmz;
 	}
+
+}
+
+void MdSystem::step() {
+	using namespace std;
+	// apply velocity to position 
+	for (int i=0; i<natoms; i++) {
+		rx[i] += vx[i] * dt;
+		ry[i] += vy[i] * dt;
+		rz[i] += vz[i] * dt;
+	}
+
+	// apply force to velocity
+	applyStretches();
+	applyBends();
+
+	setCenterZero();
 
 }
 

@@ -21,6 +21,7 @@ for t in T:
 		#print(np.linalg.norm(vij), np.linalg.norm(vkj))
 		pass
 	if sys.argv[1] == 'angle':
+		plt.ylim([0,180])
 		S = np.sum(vij * vkj) # dot prod
 		D = np.linalg.norm(vij) * np.linalg.norm(vkj)
 		A.append(np.arccos(S/D) * 180 / np.pi)

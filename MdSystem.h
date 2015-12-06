@@ -66,6 +66,7 @@ public:
 	void setDihed(int i, int n1, int n2, int n3, int n4, float d);
 	void setContact(int i, int n1, int n2, float distance);
 	void setIniVelo(float tempk);
+	void setCenterZero();
 	
 	void step();
 	void applyStretches();
